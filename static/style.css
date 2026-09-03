@@ -1,0 +1,587 @@
+/* ==========================================================================
+   Face Track AI - Neumorphism (Soft UI) + Retro Digital + Dark Mode Theme
+   ========================================================================== */
+
+:root {
+    --bg-base: #0e1017;
+    --neu-surface: #161925;
+    
+    /* Neumorphic Shadows */
+    --shadow-dark: #090a0f;
+    --shadow-light: #23283b;
+    --neu-drop: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+    --neu-drop-lg: 10px 10px 24px var(--shadow-dark), -10px -10px 24px var(--shadow-light);
+    --neu-inset: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    --neu-inset-deep: inset 5px 5px 10px #06070a, inset -5px -5px 10px #262c41;
+
+    /* Neon Retro Accents */
+    --accent-cyan: #00f0ff;
+    --accent-emerald: #00ff9d;
+    --accent-purple: #a855f7;
+    --accent-danger: #ff3b5c;
+    --accent-warning: #ffb703;
+    
+    /* Text Colors */
+    --text-main: #e2e8f0;
+    --text-muted: #8a99ad;
+    --text-dim: #505d70;
+
+    /* Fonts */
+    --font-heading: 'Orbitron', sans-serif;
+    --font-sub: 'Rajdhani', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-body: 'Inter', sans-serif;
+}
+
+/* Global Reset & Body */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Background Cyber Grid Pattern */
+.bg-grid {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.bg-grid::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 30%, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
+}
+
+.app-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+/* ==========================================================================
+   Header Section
+   ========================================================================== */
+.app-header {
+    background: var(--neu-surface);
+    box-shadow: var(--neu-drop);
+    padding: 1rem 2rem;
+    margin: 1.25rem 1.5rem 0.5rem 1.5rem;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brand-logo-chip {
+    width: 48px;
+    height: 48px;
+    background: var(--neu-surface);
+    box-shadow: var(--neu-drop);
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: var(--accent-cyan);
+}
+
+.glow-icon {
+    filter: drop-shadow(0 0 8px var(--accent-cyan));
+}
+
+.brand-title {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.accent-text {
+    color: var(--accent-cyan);
+    text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+}
+
+.brand-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.neu-pressed {
+    background: var(--neu-surface);
+    box-shadow: var(--neu-inset);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--accent-emerald);
+    box-shadow: 0 0 8px var(--accent-emerald);
+}
+
+.status-dot.pulsing {
+    animation: pulseGlow 1.8s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.5; }
+}
+
+.status-text {
+    color: var(--accent-emerald);
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.digital-clock {
+    padding: 0.5rem 1.2rem;
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--accent-cyan);
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+
+/* ==========================================================================
+   Neumorphic Cards & Consoles
+   ========================================================================== */
+.neu-card {
+    background: var(--neu-surface);
+    box-shadow: var(--neu-drop-lg);
+    border-radius: 24px;
+    padding: 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.console-section-header, .feed-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.section-title {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    letter-spacing: 1.5px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.accent-icon {
+    color: var(--accent-cyan);
+    font-size: 1.1rem;
+}
+
+.hud-line {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-cyan) 0%, rgba(0, 240, 255, 0.1) 80%, transparent 100%);
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
+}
+
+/* ==========================================================================
+   Neumorphic Inputs
+   ========================================================================== */
+.input-label {
+    font-family: var(--font-sub);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+.neu-input-wrapper {
+    background: var(--neu-surface);
+    box-shadow: var(--neu-inset);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0.3rem 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    transition: all 0.25s ease;
+}
+
+.neu-input-wrapper:focus-within {
+    box-shadow: var(--neu-inset), 0 0 10px rgba(0, 240, 255, 0.3);
+    border-color: rgba(0, 240, 255, 0.5);
+}
+
+.input-icon {
+    color: var(--accent-cyan);
+    font-size: 1.1rem;
+    margin-right: 0.75rem;
+}
+
+.neu-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    width: 100%;
+    padding: 0.75rem 0;
+}
+
+.neu-input::placeholder {
+    color: var(--text-dim);
+}
+
+/* ==========================================================================
+   Neumorphic Tactile Buttons
+   ========================================================================== */
+.neu-btn {
+    background: var(--neu-surface);
+    box-shadow: var(--neu-drop);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1rem 1rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.neu-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 8px 8px 18px var(--shadow-dark), -8px -8px 18px var(--shadow-light);
+}
+
+.neu-btn:active, .neu-btn.pressed {
+    transform: translateY(1px);
+    box-shadow: var(--neu-inset);
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+.btn-icon {
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
+}
+
+.neu-btn:hover .btn-icon {
+    transform: scale(1.15);
+}
+
+.btn-label {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Button Color Accent Variations */
+.neu-btn-primary {
+    color: var(--accent-cyan);
+}
+.neu-btn-primary:hover {
+    box-shadow: 8px 8px 18px var(--shadow-dark), -8px -8px 18px var(--shadow-light), 0 0 15px rgba(0, 240, 255, 0.25);
+}
+
+.neu-btn-success {
+    color: var(--accent-emerald);
+}
+.neu-btn-success:hover {
+    box-shadow: 8px 8px 18px var(--shadow-dark), -8px -8px 18px var(--shadow-light), 0 0 15px rgba(0, 255, 157, 0.25);
+}
+
+.neu-btn-info {
+    color: var(--accent-purple);
+}
+.neu-btn-info:hover {
+    box-shadow: 8px 8px 18px var(--shadow-dark), -8px -8px 18px var(--shadow-light), 0 0 15px rgba(168, 85, 247, 0.25);
+}
+
+.neu-btn-danger {
+    color: var(--accent-danger);
+}
+.neu-btn-danger:hover {
+    box-shadow: 8px 8px 18px var(--shadow-dark), -8px -8px 18px var(--shadow-light), 0 0 15px rgba(255, 59, 92, 0.25);
+}
+
+/* ==========================================================================
+   Terminal Console (Retro CRT Style)
+   ========================================================================== */
+.terminal-section {
+    width: 100%;
+}
+
+.terminal-header {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+}
+
+.terminal-blink {
+    color: var(--accent-emerald);
+    font-weight: bold;
+    animation: blinkCursor 1s infinite;
+}
+
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.crt-screen {
+    position: relative;
+    padding: 1rem 1.25rem;
+    min-height: 90px;
+    max-height: 120px;
+    overflow-y: auto;
+    border-radius: 16px;
+    background: #06080e;
+}
+
+.scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.3)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+}
+
+.terminal-text {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent-emerald);
+    line-height: 1.4;
+    text-shadow: 0 0 5px rgba(0, 255, 157, 0.4);
+    word-wrap: break-word;
+}
+
+/* ==========================================================================
+   Video Scanner & Retro HUD Overlay
+   ========================================================================== */
+.feed-hud-tags {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.feed-tag {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 8px;
+    background: var(--neu-surface);
+    box-shadow: var(--neu-inset);
+}
+
+.live-tag {
+    color: var(--accent-danger);
+    font-weight: bold;
+}
+
+.fps-tag {
+    color: var(--accent-cyan);
+}
+
+.video-feed-wrapper {
+    border-radius: 20px;
+    padding: 0.75rem;
+    min-height: 380px;
+    overflow: hidden;
+    background: #05070c;
+}
+
+/* HUD Corner Reticles */
+.hud-corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-color: var(--accent-cyan);
+    border-style: solid;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(0 0 4px var(--accent-cyan));
+}
+
+.top-left { top: 16px; left: 16px; border-width: 3px 0 0 3px; }
+.top-right { top: 16px; right: 16px; border-width: 3px 3px 0 0; }
+.bottom-left { bottom: 16px; left: 16px; border-width: 0 0 3px 3px; }
+.bottom-right { bottom: 16px; right: 16px; border-width: 0 3px 3px 0; }
+
+/* Target Crosshair */
+.target-overlay {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.35;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.target-circle {
+    width: 100%;
+    height: 100%;
+    border: 1px dashed var(--accent-cyan);
+    border-radius: 50%;
+    animation: rotateTarget 12s linear infinite;
+}
+
+@keyframes rotateTarget {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.crosshair-h {
+    position: absolute;
+    width: 160px;
+    height: 1px;
+    background: rgba(0, 240, 255, 0.4);
+}
+
+.crosshair-v {
+    position: absolute;
+    width: 1px;
+    height: 160px;
+    background: rgba(0, 240, 255, 0.4);
+}
+
+.video-feed {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.video-feed img {
+    max-width: 100%;
+    max-height: 380px;
+    border-radius: 14px;
+    object-fit: contain;
+}
+
+.video-scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 240, 255, 0),
+        rgba(0, 240, 255, 0.03) 50%,
+        rgba(0, 0, 0, 0.2) 51%,
+        rgba(0, 0, 0, 0)
+    );
+    background-size: 100% 6px;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.hud-meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+@media (max-width: 991px) {
+    .app-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .header-left {
+        flex-direction: column;
+    }
+    
+    .video-feed-wrapper {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .brand-title {
+        font-size: 1.4rem;
+    }
+
+    .neu-card {
+        padding: 1.25rem;
+    }
+
+    .btn-label {
+        font-size: 0.7rem;
+    }
+
+    .neu-btn {
+        padding: 0.8rem 0.5rem;
+    }
+}

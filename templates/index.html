@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Track AI | Soft Neumorphic Retro HUD</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/glass-theme.css">
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+    <!-- Background Ambient Glow Grid -->
+    <div class="bg-grid"></div>
+
+    <div class="app-wrapper">
+        <!-- Top Retro Header Bar -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="brand-logo-chip">
+                    <i class="fa-solid fa-microchip glow-icon"></i>
+                </div>
+                <div class="title-group">
+                    <h1 class="brand-title">FACE TRACK <span class="accent-text">AI</span></h1>
+                    <span class="brand-subtitle"><i class="fa-solid fa-terminal"></i> DIGITAL BIOMETRIC ATTENDANCE SYSTEM</span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="status-badge neu-pressed">
+                    <span class="status-dot pulsing"></span>
+                    <span class="status-text" id="sys-status">SYSTEM ONLINE</span>
+                </div>
+                <div class="digital-clock neu-pressed" id="digital-clock">00:00:00</div>
+                <button id="theme_toggle" class="neu-btn" title="Toggle Theme" style="width:auto;padding:0.4rem 0.6rem;margin-left:0.6rem;">
+                    <i id="theme_icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="container-fluid px-4 py-3">
+            <div class="row g-4 align-items-stretch">
+                
+                <!-- Left Control Panel (Neumorphic Console) -->
+                <div class="col-lg-6 d-flex flex-column">
+                    <div class="neu-card main-console flex-grow-1 d-flex flex-column justify-content-between">
+                        
+                        <!-- Panel Section Header -->
+                        <div class="console-section-header">
+                            <div class="section-title">
+                                <i class="fa-solid fa-sliders accent-icon"></i> CONTROL CONSOLE
+                            </div>
+                            <div class="hud-line"></div>
+                        </div>
+
+                        <!-- Input Fields Group -->
+                        <div class="input-section my-3">
+                            <label class="input-label mb-2">
+                                <i class="fa-solid fa-id-card-clip"></i> STUDENT BIOMETRIC REGISTRATION
+                            </label>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="neu-input-wrapper">
+                                        <i class="fa-solid fa-user input-icon"></i>
+                                        <input type="text" id="student_name" placeholder="Student Name" class="neu-input" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="neu-input-wrapper">
+                                        <i class="fa-solid fa-hashtag input-icon"></i>
+                                        <input type="text" id="aktu_roll_number" placeholder="Roll Number" class="neu-input" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons Grid -->
+                        <div class="action-section my-3">
+                            <div class="row g-3 buttons">
+                                <div class="col-6">
+                                    <button id="train_image" class="neu-btn neu-btn-primary">
+                                        <span class="btn-glow"></span>
+                                        <i class="fa-solid fa-camera-retro btn-icon"></i>
+                                        <span class="btn-label">TRAIN IMAGE</span>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button id="take_attendance" class="neu-btn neu-btn-success">
+                                        <span class="btn-glow"></span>
+                                        <i class="fa-solid fa-user-check btn-icon"></i>
+                                        <span class="btn-label">ATTENDANCE</span>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button id="send_email" class="neu-btn neu-btn-info">
+                                        <span class="btn-glow"></span>
+                                        <i class="fa-solid fa-paper-plane btn-icon"></i>
+                                        <span class="btn-label">SEND REPORT</span>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button id="delete_data" class="neu-btn neu-btn-danger">
+                                        <span class="btn-glow"></span>
+                                        <i class="fa-solid fa-trash-can btn-icon"></i>
+                                        <span class="btn-label">RESET DATA</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Retro Digital CRT Terminal Output -->
+                        <div class="terminal-section mt-auto pt-3">
+                            <div class="terminal-header d-flex justify-content-between align-items-center">
+                                <span class="terminal-title"><i class="fa-solid fa-code"></i> TERMINAL CONSOLE LOG</span>
+                                <span class="terminal-blink">_</span>
+                            </div>
+                            <div class="crt-screen neu-pressed">
+                                <div class="scanline"></div>
+                                <div id="message" class="message-box terminal-text">> System initialized. Ready for command...</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Video Feed (Retro Cyber Scan Monitor) -->
+                <div class="col-lg-6 d-flex flex-column">
+                    <div class="neu-card feed-console flex-grow-1 d-flex flex-column">
+                        
+                        <!-- Video Header HUD -->
+                        <div class="feed-header d-flex justify-content-between align-items-center mb-3">
+                            <div class="section-title">
+                                <i class="fa-solid fa-video accent-icon"></i> OPTICAL FEED SCANNER
+                            </div>
+                            <div class="feed-hud-tags">
+                                <span class="feed-tag live-tag"><i class="fa-solid fa-circle"></i> LIVE</span>
+                                <span class="feed-tag fps-tag">30 FPS</span>
+                            </div>
+                        </div>
+
+                        <!-- Video Container Frame with Reticle Targets -->
+                        <div class="video-feed-wrapper neu-pressed flex-grow-1 position-relative d-flex justify-content-center align-items-center">
+                            <!-- Target Reticle Corners -->
+                            <div class="hud-corner top-left"></div>
+                            <div class="hud-corner top-right"></div>
+                            <div class="hud-corner bottom-left"></div>
+                            <div class="hud-corner bottom-right"></div>
+
+                            <!-- Overlay Target Crosshair -->
+                            <div class="target-overlay">
+                                <div class="target-circle"></div>
+                                <div class="crosshair-h"></div>
+                                <div class="crosshair-v"></div>
+                            </div>
+
+                            <!-- Video Feed Image -->
+                            <div class="video-feed">
+                                <img id="video_feed" src="{{ url_for('video_feed') }}" class="img-fluid" alt="Webcam Feed">
+                            </div>
+                            
+                            <!-- CRT Screen Scanline Overlay on Feed -->
+                            <div class="video-scanline"></div>
+                        </div>
+
+                        <!-- Video Footer Status -->
+                        <div class="feed-footer d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary-subtle">
+                            <span class="hud-meta"><i class="fa-solid fa-eye"></i> HAAR CASCADE DETECTOR: ACTIVE</span>
+                            <span class="hud-meta"><i class="fa-solid fa-shield-halved"></i> LOCAL AI STREAM</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="static/scripts.js"></script>
+</body>
+
+</html>
