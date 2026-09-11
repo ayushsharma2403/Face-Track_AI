@@ -302,85 +302,165 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.6rem;
-    padding: 0.85rem 1rem;
-    border-radius: var(--radius-control);
-    background: var(--neu-surface);
+    gap: 0.65rem;
+    padding: 0.85rem 1.4rem;
+    border-radius: 999px !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.18) 100%);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
     color: var(--text-main);
     font-family: var(--font-heading);
-    font-size: 0.8rem;
+    font-size: 0.84rem;
     font-weight: 700;
-    letter-spacing: 0.4px;
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: var(--neu-shadow-sm);
+    letter-spacing: 0.3px;
+    border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+    box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+                inset 0 -1.5px 2px rgba(255, 255, 255, 0.25),
+                0 8px 20px -4px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
     overflow: hidden;
 }
 
+/* Glass Specular Top Highlight Glint - Image Inspired */
+.neu-btn::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 8%;
+    right: 8%;
+    height: 48%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.04) 100%);
+    border-radius: 999px 999px 0 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.neu-btn .btn-label, 
+.neu-btn .btn-icon {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+}
+
 .neu-btn:hover {
-    box-shadow: var(--neu-shadow-hover);
     transform: translateY(-2px);
+    box-shadow: inset 0 2px 2px #ffffff,
+                0 12px 26px -4px rgba(0, 0, 0, 0.12);
+    filter: brightness(1.03);
 }
 
 .neu-btn.pressed, .neu-btn:active {
-    box-shadow: var(--neu-inset);
     transform: translateY(1px);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.12);
 }
 
 .btn-icon {
     font-size: 0.95rem;
 }
 
-/* Button Variants */
+/* --------------------------------------------------------------------------
+   Lighter Shade Glass Button Variants (Preserving Distinct Colors)
+   -------------------------------------------------------------------------- */
+
+/* 1. Train Image (Lighter Blue Glass) */
 .neu-btn-primary {
-    background: var(--accent-blue-gradient);
-    color: #ffffff !important;
-    border: none;
-    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.28) 0%, rgba(37, 99, 235, 0.12) 100%) !important;
+    color: #1d4ed8 !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+    box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+                inset 0 -1.5px 2px rgba(37, 99, 235, 0.18),
+                0 8px 20px -4px rgba(37, 99, 235, 0.22) !important;
+}
+
+.neu-btn-primary .btn-icon {
+    color: #2563eb !important;
 }
 
 .neu-btn-primary:hover {
-    box-shadow: 0 14px 28px rgba(37, 99, 235, 0.45);
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.38) 0%, rgba(37, 99, 235, 0.18) 100%) !important;
+    box-shadow: inset 0 2px 2px #ffffff,
+                0 14px 28px -4px rgba(37, 99, 235, 0.3) !important;
 }
 
+/* 2. Take Attendance (Lighter Emerald Green Glass) */
 .neu-btn-success {
-    background: var(--accent-emerald-gradient);
-    color: #ffffff !important;
-    border: none;
-    box-shadow: 0 10px 24px rgba(16, 185, 129, 0.3);
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.28) 0%, rgba(5, 150, 105, 0.12) 100%) !important;
+    color: #047857 !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+    box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+                inset 0 -1.5px 2px rgba(5, 150, 105, 0.18),
+                0 8px 20px -4px rgba(16, 185, 129, 0.22) !important;
 }
 
+.neu-btn-success .btn-icon {
+    color: #059669 !important;
+}
+
+.neu-btn-success:hover {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.38) 0%, rgba(5, 150, 105, 0.18) 100%) !important;
+    box-shadow: inset 0 2px 2px #ffffff,
+                0 14px 28px -4px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* 3. Send Report (Lighter Purple Glass) */
 .neu-btn-info {
-    background: var(--accent-purple-gradient);
-    color: #ffffff !important;
-    border: none;
-    box-shadow: 0 10px 24px rgba(139, 92, 246, 0.3);
+    background: linear-gradient(180deg, rgba(168, 85, 247, 0.28) 0%, rgba(126, 34, 206, 0.12) 100%) !important;
+    color: #6b21a8 !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+    box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+                inset 0 -1.5px 2px rgba(126, 34, 206, 0.18),
+                0 8px 20px -4px rgba(168, 85, 247, 0.22) !important;
 }
 
+.neu-btn-info .btn-icon {
+    color: #7c3aed !important;
+}
+
+.neu-btn-info:hover {
+    background: linear-gradient(180deg, rgba(168, 85, 247, 0.38) 0%, rgba(126, 34, 206, 0.18) 100%) !important;
+    box-shadow: inset 0 2px 2px #ffffff,
+                0 14px 28px -4px rgba(168, 85, 247, 0.3) !important;
+}
+
+/* 4. Reset Data (Lighter Rose / Red Glass) */
 .neu-btn-danger {
-    background: var(--neu-surface);
-    color: var(--accent-rose);
-    border: 1px solid rgba(244, 63, 94, 0.2);
+    background: linear-gradient(180deg, rgba(244, 63, 94, 0.24) 0%, rgba(225, 29, 72, 0.1) 100%) !important;
+    color: #be123c !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+    box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+                inset 0 -1.5px 2px rgba(225, 29, 72, 0.16),
+                0 8px 20px -4px rgba(244, 63, 94, 0.2) !important;
+}
+
+.neu-btn-danger .btn-icon {
+    color: #e11d48 !important;
 }
 
 .neu-btn-danger:hover {
-    background: var(--accent-rose-gradient);
-    color: #ffffff !important;
-    border-color: transparent;
-    box-shadow: 0 10px 24px rgba(244, 63, 94, 0.3);
+    background: linear-gradient(180deg, rgba(244, 63, 94, 0.34) 0%, rgba(225, 29, 72, 0.16) 100%) !important;
+    box-shadow: inset 0 2px 2px #ffffff,
+                0 14px 28px -4px rgba(244, 63, 94, 0.28) !important;
 }
 
+/* 5. Download Attendance CSV (Lighter Clean Frosted Glass) */
 .neu-btn-secondary {
-    background: #ffffff;
-    color: var(--accent-blue);
-    border: 1px solid rgba(37, 99, 235, 0.18);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.3) 100%) !important;
+    color: #1e293b !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 1),
+                0 8px 20px -4px rgba(0, 0, 0, 0.06) !important;
+}
+
+.neu-btn-secondary .btn-icon {
+    color: #2563eb !important;
 }
 
 .neu-btn-secondary:hover {
-    background: var(--neu-surface);
-    color: var(--accent-blue);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.45) 100%) !important;
+    box-shadow: inset 0 2px 2px #ffffff,
+                0 12px 26px -4px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* ==========================================================================
