@@ -3,7 +3,6 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0%2B-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)](https://opencv.org/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 **Face-Track AI** is a smart, automated face-recognition attendance monitoring system. Designed with a modern, glassmorphic web dashboard powered by Flask, it streamlines student registration, real-time face tracking, attendance logging, and automated email reporting with CSV attachments.
 
@@ -99,9 +98,3 @@ Once running, navigate to `http://localhost:5000` in your web browser.
 
 - **Never commit `.env`**: Always store sensitive credentials such as email addresses and SMTP app passwords in `.env`, which is strictly excluded via `.gitignore`.
 - **Session & Data Cleanup**: Built-in endpoints allow clearing local training datasets and test CSV records securely.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
