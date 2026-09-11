@@ -1,120 +1,297 @@
-/* Samsung-style Minimal Dark + iOS-like Glassmorphism
-   Design goals:
-   - Minimal, high-contrast dark surfaces (Samsung One UI like)
-   - Frosted glass buttons, popovers and menus (iOS-like)
-   - Simple typography, roomy spacing and subtle accents
-*/
+/* ==========================================================================
+   Face Track AI - Pure Clear Frosted Glassmorphism (No Colors / Crystal Clear)
+   ========================================================================== */
 
-:root {
-    --bg-900: #05060a; /* main app background */
-    --bg-800: #0a0b10; /* elevated surface */
-    --surface: rgba(255,255,255,0.02);
-    --glass-border: rgba(255,255,255,0.06);
-    --glass-strong: rgba(255,255,255,0.04);
-    --glass-shadow: 0 10px 30px rgba(0,0,0,0.6);
-    --accent: #48a9ff; /* primary accent */
-    --accent-2: #8ae6c1; /* secondary */
-    --muted: rgba(255,255,255,0.6);
-    --text: rgba(255,255,255,0.95);
-    --radius: 12px;
-    --blur: 10px;
+/* --------------------------------------------------------------------------
+   1. Clear Transparent Modal Backdrop (Soft Blur Over Minimalist Dashboard)
+   -------------------------------------------------------------------------- */
+.modal-backdrop.show {
+    background-color: rgba(15, 23, 42, 0.35) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    opacity: 1 !important;
 }
 
-/* Base */
-body {
-    background: linear-gradient(180deg, var(--bg-900), var(--bg-800));
-    color: var(--text);
-    -webkit-font-smoothing:antialiased;
+.modal.fade .modal-dialog {
+    transform: scale(0.96) translateY(-10px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    opacity: 0;
 }
 
-/* Ensure app wrapper above ambient */
-.app-wrapper { position: relative; z-index: 2; }
+.modal.show .modal-dialog {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
 
-/* Ambient soft white lighting when dark */
-body.dark::before{
+.modal-dialog {
+    max-width: 480px;
+    margin: 2rem auto;
+    position: relative;
+    z-index: 1055;
+}
+
+/* --------------------------------------------------------------------------
+   2. Pure Crystal Clear Frosted Glass Pane
+   -------------------------------------------------------------------------- */
+.modal-content.clear-glass-modal {
+    position: relative;
+    background: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: blur(30px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+    border-radius: 28px !important;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.5),
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.9),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.04) !important;
+    padding: 2rem !important;
+    color: #0f172a !important;
+    overflow: hidden;
+}
+
+/* Specular Light Reflection Line */
+.modal-content.clear-glass-modal::before {
     content: '';
-    position: fixed; inset:0; pointer-events:none; z-index:0;
-    background: radial-gradient(600px 300px at 10% 10%, rgba(255,255,255,0.04), transparent 18%),
-                radial-gradient(600px 300px at 90% 90%, rgba(255,255,255,0.02), transparent 18%);
-    filter: blur(40px);
-    mix-blend-mode: screen;
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent);
+    pointer-events: none;
 }
 
-/* Header */
-.app-header {
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    padding: 0.85rem 1.25rem;
-    box-shadow: var(--glass-shadow);
+/* Clean Minimal Close Button */
+.clear-glass-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
 }
 
-.brand-title { font-weight:700; letter-spacing:1px; color:var(--text); }
-.brand-subtitle { color:var(--muted); font-size:0.78rem; }
-
-/* Cards / Panels */
-.neu-card {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--glass-strong);
-    border-radius: 14px;
-    padding: 1.25rem;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+.clear-glass-close:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: #0f172a;
+    transform: scale(1.06);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* Inputs */
-.neu-input-wrapper {
-    background: rgba(255,255,255,0.01);
-    border: 1px solid rgba(255,255,255,0.04);
-    border-radius: 10px;
-    padding: 0.45rem 0.9rem;
+/* --------------------------------------------------------------------------
+   3. Modal Header & Real Information
+   -------------------------------------------------------------------------- */
+.clear-glass-header {
+    margin-bottom: 1.5rem;
 }
-.neu-input { color: var(--text); }
 
-/* Buttons: glass style */
-.neu-btn {
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
-    border: 1px solid rgba(255,255,255,0.06);
-    color: var(--text);
+.clear-glass-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.4px;
+    margin-bottom: 0.25rem;
+}
+
+.clear-glass-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    color: #64748b;
+    font-weight: 400;
+}
+
+/* --------------------------------------------------------------------------
+   4. Clear Translucent Form Inputs
+   -------------------------------------------------------------------------- */
+.clear-glass-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #334155;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.45rem;
+    display: block;
+}
+
+.clear-glass-input-box {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    padding: 0.75rem 1rem;
+    transition: all 0.25s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.clear-glass-input-box:focus-within {
+    background: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.clear-glass-input-box i {
+    color: #94a3b8;
+    margin-right: 0.65rem;
+    font-size: 0.95rem;
+}
+
+.clear-glass-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    color: #0f172a;
+    font-size: 0.88rem;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+}
+
+.clear-glass-input::placeholder {
+    color: #94a3b8;
+}
+
+/* Clear Drawer for Sender Setup */
+.clear-glass-toggle-btn {
+    background: transparent;
+    border: none;
+    color: #475569;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.clear-glass-toggle-btn:hover {
+    color: #0f172a;
+    text-decoration: underline;
+}
+
+.clear-glass-status-chip {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #475569;
+}
+
+.clear-glass-drawer {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1.5px solid rgba(255, 255, 255, 0.8);
+    border-radius: 18px;
+    padding: 1rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.clear-drawer-input {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 12px;
-    padding: 0.6rem 0.9rem;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.55);
-    backdrop-filter: blur(var(--blur));
+    padding: 0.55rem 0.85rem;
+    color: #0f172a;
+    font-size: 0.82rem;
+    width: 100%;
+    outline: none;
+    transition: all 0.2s ease;
 }
-.neu-btn .btn-icon { color: var(--accent); }
-.neu-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.65); }
-.neu-btn.pressed, .neu-btn:active { transform: translateY(1px); box-shadow: inset 2px 2px 6px rgba(0,0,0,0.45); }
 
-/* Accent variants */
-.neu-btn-primary { background: linear-gradient(180deg, rgba(72,169,255,0.18), rgba(72,169,255,0.10)); border-color: rgba(72,169,255,0.18); }
-.neu-btn-success { background: linear-gradient(180deg, rgba(138,230,193,0.14), rgba(138,230,193,0.08)); border-color: rgba(138,230,193,0.14); }
+.clear-drawer-input:focus {
+    background: #ffffff;
+    border-color: #2563eb;
+}
 
-/* Video feed */
-.video-feed-wrapper { background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); border-radius:12px; padding:0.6rem; }
-.video-feed img { border-radius:10px; box-shadow: 0 8px 28px rgba(0,0,0,0.7); }
+.clear-drawer-input::placeholder {
+    color: #94a3b8;
+}
 
-/* Terminal / CRT simplified */
-.crt-screen { background: rgba(0,0,0,0.45); border-radius:10px; border:1px solid rgba(255,255,255,0.02); }
-
-/* HUD tags */
-.feed-tag { background: rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.03); color:var(--muted); padding:4px 8px; border-radius:8px; }
-
-/* Glassy popover / menu styles (iOS-like) */
-.popover, .menu, .dropdown, .popup {
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border: 1px solid rgba(255,255,255,0.06);
+/* --------------------------------------------------------------------------
+   5. Clear Alerts & Action Buttons
+   -------------------------------------------------------------------------- */
+.clear-glass-alert {
+    padding: 0.65rem 1rem;
     border-radius: 14px;
-    padding: 0.5rem;
-    box-shadow: 0 18px 40px rgba(0,0,0,0.6);
-    backdrop-filter: blur(14px) saturate(120%);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
 }
-.menu-item { padding: 0.6rem 0.8rem; color:var(--text); border-radius:10px; }
-.menu-item:hover { background: rgba(255,255,255,0.02); }
 
-/* Small helpers */
-.hud-line { height:2px; background: linear-gradient(90deg, rgba(72,169,255,0.9), rgba(138,230,193,0.1)); border-radius:2px; }
-.accent-text { color:var(--accent); }
+.clear-glass-alert.alert-success {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
 
-@media (max-width: 576px) {
-    .app-header { padding:0.8rem; }
-    .neu-card { padding:1rem; }
+.clear-glass-alert.alert-danger {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.clear-glass-alert.alert-warning {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+
+.clear-glass-btn-primary {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700 !important;
+    font-size: 0.84rem !important;
+    border-radius: 999px !important;
+    padding: 0.7rem 1.5rem !important;
+    border: none !important;
+    box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.3) !important;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.clear-glass-btn-primary:hover {
+    background: #1e293b !important;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 26px -5px rgba(15, 23, 42, 0.4) !important;
+}
+
+.clear-glass-btn-secondary {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+    color: #334155 !important;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    border-radius: 999px !important;
+    padding: 0.7rem 1.25rem !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.clear-glass-btn-secondary:hover {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -4px rgba(0, 0, 0, 0.08) !important;
 }

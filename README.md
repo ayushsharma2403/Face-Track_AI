@@ -24,7 +24,6 @@
 ```text
 Face-Track_AI/
 ├── static/
-│   ├── clg-logo.JPG           # Organization / University branding
 │   ├── glass-theme.css        # Glassmorphic UI theme styling
 │   ├── scripts.js             # Client-side asynchronous interaction handlers
 │   └── style.css              # Core responsive layout stylesheet

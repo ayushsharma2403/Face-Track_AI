@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Track AI | Soft Neumorphic Retro HUD</title>
+    <title>FaceTrack AI | Smart Biometric Attendance</title>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts (Plus Jakarta Sans, Inter, JetBrains Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,7 +17,7 @@
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Custom Stylesheet -->
+    <!-- Custom Minimalist Neumorphic & Glassmorphic Stylesheets -->
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/glass-theme.css">
 
@@ -26,164 +26,165 @@
 </head>
 
 <body>
-    <!-- Background Ambient Glow Grid -->
+    <!-- Background Ambient Glow -->
     <div class="bg-grid"></div>
 
     <div class="app-wrapper">
-        <!-- Top Retro Header Bar -->
+        <!-- Top Minimalist Header Bar -->
         <header class="app-header">
             <div class="header-left">
                 <div class="brand-logo-chip">
-                    <i class="fa-solid fa-microchip glow-icon"></i>
+                    <i class="fa-solid fa-face-smile"></i>
                 </div>
                 <div class="title-group">
-                    <h1 class="brand-title">FACE TRACK <span class="accent-text">AI</span></h1>
-                    <span class="brand-subtitle"><i class="fa-solid fa-terminal"></i> DIGITAL BIOMETRIC ATTENDANCE SYSTEM</span>
+                    <h1 class="brand-title">FaceTrack <span class="accent-text">AI</span></h1>
+                    <span class="brand-subtitle">Smart Biometric Attendance & Facial Verification</span>
                 </div>
             </div>
             
             <div class="header-right">
-                <div class="status-badge neu-pressed">
+                <div class="status-badge">
                     <span class="status-dot pulsing"></span>
-                    <span class="status-text" id="sys-status">SYSTEM ONLINE</span>
+                    <span class="status-text" id="sys-status">SYSTEM READY</span>
                 </div>
-                <div class="digital-clock neu-pressed" id="digital-clock">00:00:00</div>
-                <button id="theme_toggle" class="neu-btn" title="Toggle Theme" style="width:auto;padding:0.4rem 0.6rem;margin-left:0.6rem;">
-                    <i id="theme_icon" class="fa-solid fa-moon"></i>
-                </button>
+                <div class="digital-clock" id="digital-clock">00:00:00</div>
             </div>
         </header>
 
         <!-- Main Workspace -->
-        <main class="container-fluid px-4 py-3">
+        <main class="container-fluid px-0">
             <div class="row g-4 align-items-stretch">
                 
-                <!-- Left Control Panel (Neumorphic Console) -->
+                <!-- Left Control Console (Minimalist Neumorphic Card) -->
                 <div class="col-lg-6 d-flex flex-column">
                     <div class="neu-card main-console flex-grow-1 d-flex flex-column justify-content-between">
                         
                         <!-- Panel Section Header -->
-                        <div class="console-section-header">
-                            <div class="section-title">
-                                <i class="fa-solid fa-sliders accent-icon"></i> CONTROL CONSOLE
+                        <div>
+                            <div class="console-section-header">
+                                <div class="section-title">
+                                    <i class="fa-solid fa-id-card accent-icon"></i> Student Registration
+                                </div>
                             </div>
-                            <div class="hud-line"></div>
-                        </div>
 
-                        <!-- Input Fields Group -->
-                        <div class="input-section my-3">
-                            <label class="input-label mb-2">
-                                <i class="fa-solid fa-id-card-clip"></i> STUDENT BIOMETRIC REGISTRATION
-                            </label>
-                            
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="neu-input-wrapper">
-                                        <i class="fa-solid fa-user input-icon"></i>
-                                        <input type="text" id="student_name" placeholder="Student Name" class="neu-input" autocomplete="off">
+                            <!-- Input Fields Group -->
+                            <div class="input-section mb-4">
+                                <label class="input-label mb-2">ENTER STUDENT DETAILS</label>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="neu-input-wrapper">
+                                            <i class="fa-solid fa-user input-icon"></i>
+                                            <input type="text" id="student_name" placeholder="Full Name" class="neu-input" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="neu-input-wrapper">
+                                            <i class="fa-solid fa-hashtag input-icon"></i>
+                                            <input type="text" id="aktu_roll_number" placeholder="Roll Number" class="neu-input" autocomplete="off">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="neu-input-wrapper">
-                                        <i class="fa-solid fa-hashtag input-icon"></i>
-                                        <input type="text" id="aktu_roll_number" placeholder="Roll Number" class="neu-input" autocomplete="off">
+                            </div>
+
+                            <!-- Action Buttons Grid -->
+                            <div class="action-section mb-3">
+                                <div class="row g-3 buttons">
+                                    <div class="col-6">
+                                        <button id="train_image" class="neu-btn neu-btn-primary w-100">
+                                            <i class="fa-solid fa-camera btn-icon"></i>
+                                            <span class="btn-label">Train Image</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button id="take_attendance" class="neu-btn neu-btn-success w-100">
+                                            <i class="fa-solid fa-check-circle btn-icon"></i>
+                                            <span class="btn-label">Attendance</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button id="send_email" class="neu-btn neu-btn-info w-100">
+                                            <i class="fa-solid fa-paper-plane btn-icon"></i>
+                                            <span class="btn-label">Send Report</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button id="delete_data" class="neu-btn neu-btn-danger w-100">
+                                            <i class="fa-solid fa-trash-can btn-icon"></i>
+                                            <span class="btn-label">Reset Data</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-12">
+                                        <a href="/download_attendance" id="download_report" class="neu-btn neu-btn-secondary w-100" style="text-decoration:none;">
+                                            <i class="fa-solid fa-cloud-arrow-down btn-icon"></i>
+                                            <span class="btn-label">Download Attendance CSV</span>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Action Buttons Grid -->
-                        <div class="action-section my-3">
-                            <div class="row g-3 buttons">
-                                <div class="col-6">
-                                    <button id="train_image" class="neu-btn neu-btn-primary">
-                                        <span class="btn-glow"></span>
-                                        <i class="fa-solid fa-camera-retro btn-icon"></i>
-                                        <span class="btn-label">TRAIN IMAGE</span>
-                                    </button>
+                        <!-- Biometric Confirmation Card (Frosted Glass Floating Card - img2 inspired) -->
+                        <div id="confirmation_card" class="confirmation-toast-glass my-3 p-3" style="display:none;">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="confirm-avatar-wrapper">
+                                    <img id="confirm_avatar" src="" alt="Captured Face" style="width: 100%; height: 100%; object-fit: cover;">
                                 </div>
-                                <div class="col-6">
-                                    <button id="take_attendance" class="neu-btn neu-btn-success">
-                                        <span class="btn-glow"></span>
-                                        <i class="fa-solid fa-user-check btn-icon"></i>
-                                        <span class="btn-label">ATTENDANCE</span>
-                                    </button>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <span id="confirm_badge" class="badge glass-badge-success">
+                                            <i class="fa-solid fa-circle-check"></i> Verified
+                                        </span>
+                                        <span id="confirm_time" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">00:00:00</span>
+                                    </div>
+                                    <h5 id="confirm_name" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; color: #0f172a;">Student Name</h5>
+                                    <div id="confirm_roll" style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-blue);">Roll: 00000000</div>
                                 </div>
-                                <div class="col-6">
-                                    <button id="send_email" class="neu-btn neu-btn-info">
-                                        <span class="btn-glow"></span>
-                                        <i class="fa-solid fa-paper-plane btn-icon"></i>
-                                        <span class="btn-label">SEND REPORT</span>
-                                    </button>
-                                </div>
-                                <div class="col-6">
-                                    <button id="delete_data" class="neu-btn neu-btn-danger">
-                                        <span class="btn-glow"></span>
-                                        <i class="fa-solid fa-trash-can btn-icon"></i>
-                                        <span class="btn-label">RESET DATA</span>
-                                    </button>
-                                </div>
+                                <button type="button" id="close_confirm" class="btn btn-sm text-muted p-1" style="background: transparent; border: none; align-self: flex-start;">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Retro Digital CRT Terminal Output -->
-                        <div class="terminal-section mt-auto pt-3">
+                        <!-- Modern Minimalist System Activity Log -->
+                        <div class="terminal-section mt-auto">
                             <div class="terminal-header d-flex justify-content-between align-items-center">
-                                <span class="terminal-title"><i class="fa-solid fa-code"></i> TERMINAL CONSOLE LOG</span>
-                                <span class="terminal-blink">_</span>
+                                <span class="terminal-title"><i class="fa-solid fa-wave-pulse"></i> SYSTEM LOG STREAM</span>
                             </div>
-                            <div class="crt-screen neu-pressed">
-                                <div class="scanline"></div>
-                                <div id="message" class="message-box terminal-text">> System initialized. Ready for command...</div>
+                            <div class="crt-screen">
+                                <div id="message" class="message-box">> System ready for operation.</div>
                             </div>
                         </div>
 
                     </div>
                 </div>
 
-                <!-- Right Video Feed (Retro Cyber Scan Monitor) -->
+                <!-- Right Video Feed (Minimalist Framed Display) -->
                 <div class="col-lg-6 d-flex flex-column">
                     <div class="neu-card feed-console flex-grow-1 d-flex flex-column">
                         
-                        <!-- Video Header HUD -->
-                        <div class="feed-header d-flex justify-content-between align-items-center mb-3">
+                        <!-- Video Header -->
+                        <div class="feed-header d-flex justify-content-between align-items-center">
                             <div class="section-title">
-                                <i class="fa-solid fa-video accent-icon"></i> OPTICAL FEED SCANNER
+                                <i class="fa-solid fa-video accent-icon"></i> Optical Scanner
                             </div>
                             <div class="feed-hud-tags">
                                 <span class="feed-tag live-tag"><i class="fa-solid fa-circle"></i> LIVE</span>
-                                <span class="feed-tag fps-tag">30 FPS</span>
+                                <span class="feed-tag">30 FPS</span>
                             </div>
                         </div>
 
-                        <!-- Video Container Frame with Reticle Targets -->
-                        <div class="video-feed-wrapper neu-pressed flex-grow-1 position-relative d-flex justify-content-center align-items-center">
-                            <!-- Target Reticle Corners -->
-                            <div class="hud-corner top-left"></div>
-                            <div class="hud-corner top-right"></div>
-                            <div class="hud-corner bottom-left"></div>
-                            <div class="hud-corner bottom-right"></div>
-
-                            <!-- Overlay Target Crosshair -->
-                            <div class="target-overlay">
-                                <div class="target-circle"></div>
-                                <div class="crosshair-h"></div>
-                                <div class="crosshair-v"></div>
-                            </div>
-
-                            <!-- Video Feed Image -->
+                        <!-- Video Container Frame -->
+                        <div class="video-feed-wrapper flex-grow-1">
                             <div class="video-feed">
                                 <img id="video_feed" src="{{ url_for('video_feed') }}" class="img-fluid" alt="Webcam Feed">
                             </div>
-                            
-                            <!-- CRT Screen Scanline Overlay on Feed -->
-                            <div class="video-scanline"></div>
                         </div>
 
                         <!-- Video Footer Status -->
-                        <div class="feed-footer d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary-subtle">
-                            <span class="hud-meta"><i class="fa-solid fa-eye"></i> HAAR CASCADE DETECTOR: ACTIVE</span>
-                            <span class="hud-meta"><i class="fa-solid fa-shield-halved"></i> LOCAL AI STREAM</span>
+                        <div class="feed-footer">
+                            <span class="hud-meta"><i class="fa-solid fa-shield-check"></i> Biometric Recognition: Active</span>
+                            <span class="hud-meta"><i class="fa-solid fa-bolt"></i> Local Hardware Stream</span>
                         </div>
 
                     </div>
@@ -192,6 +193,98 @@
             </div>
         </main>
     </div>
+
+    <!-- Send Report Modal (Pure Crystal Clear Frosted Glassmorphism) -->
+    <div class="modal fade" id="sendReportModal" tabindex="-1" aria-labelledby="sendReportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content clear-glass-modal">
+                <!-- Subtle Close Button -->
+                <button type="button" class="clear-glass-close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <!-- Clear Glass Header -->
+                <div class="clear-glass-header">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <div style="width: 32px; height: 32px; border-radius: 10px; background: rgba(37, 99, 235, 0.1); color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </div>
+                        <h3 class="clear-glass-title mb-0" id="sendReportModalLabel">
+                            Dispatch Attendance Report
+                        </h3>
+                    </div>
+                    <div class="clear-glass-subtitle">
+                        Send biometric attendance CSV log directly to faculty or administrator.
+                    </div>
+                </div>
+
+                <!-- Integrated Clean Form -->
+                <div class="clear-glass-body">
+                    <div class="mb-3">
+                        <label class="clear-glass-label">
+                            <i class="fa-solid fa-at me-1 text-muted"></i> RECIPIENT EMAIL ADDRESS
+                        </label>
+                        <div class="clear-glass-input-box">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" id="recipient_email" placeholder="faculty_or_admin@gmail.com" class="clear-glass-input" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <!-- Clean Sender Settings Toggle -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <button type="button" id="toggle_smtp_details" class="clear-glass-toggle-btn">
+                                <i class="fa-solid fa-sliders me-1"></i> Sender Setup
+                                <i class="fa-solid fa-chevron-down ms-1 toggle-icon" style="font-size: 0.65rem;"></i>
+                            </button>
+                            <span id="smtp_status_chip" class="clear-glass-status-chip">Checking...</span>
+                        </div>
+
+                        <div id="smtp_inputs_drawer" class="clear-glass-drawer" style="display: none;">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <input type="email" id="sender_email_input" placeholder="Your Sender Gmail address" class="clear-drawer-input">
+                                </div>
+                                <div class="col-12">
+                                    <input type="password" id="sender_password_input" placeholder="16-character Google App Password" class="clear-drawer-input">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+                                <label style="font-size: 0.72rem; color: #64748b; cursor: pointer; user-select: none;">
+                                    <input type="checkbox" id="save_credentials_check" checked> Save to .env
+                                </label>
+                                <a href="https://myaccount.google.com/apppasswords" target="_blank" style="font-size: 0.72rem; color: #2563eb; text-decoration: none; font-weight: 600;">
+                                    Get App Password <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.65rem;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Dynamic Status Alert -->
+                    <div id="modal_alert" class="clear-glass-alert mb-3" style="display: none;"></div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between align-items-center pt-2">
+                        <a href="/download_attendance" class="clear-glass-btn-secondary">
+                            <i class="fa-solid fa-download me-1"></i> Download CSV
+                        </a>
+                        <div class="d-flex gap-2">
+                            <a id="btn_mailto_fallback" href="#" class="clear-glass-btn-secondary" style="display: none;">
+                                <i class="fa-solid fa-envelope-open me-1"></i> Open Mail App
+                            </a>
+                            <button type="button" id="btn_send_modal" class="clear-glass-btn-primary">
+                                <span class="btn-label"><i class="fa-solid fa-paper-plane me-1"></i> Send Now</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Scripts -->
     <script src="static/scripts.js"></script>
