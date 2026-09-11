@@ -1,9 +1,9 @@
 /* ==========================================================================
-   Face Track AI - Pure Clear Translucent Glassmorphism (Clear Transparent Surroundings)
+   Face Track AI - Crystal Clear Transparent Glassmorphism
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. Clear Transparent Surroundings (No Fog, No Blur Around Modal)
+   1. Clear Transparent Surroundings (No Fog, No Backdrop Blur)
    -------------------------------------------------------------------------- */
 .modal-backdrop {
     background-color: transparent !important;
@@ -40,32 +40,33 @@
 }
 
 /* --------------------------------------------------------------------------
-   2. Pure Clear Translucent Frosted Glass Pane
+   2. Crystal Clear Transparent Glass Card
    -------------------------------------------------------------------------- */
 .modal-content.clear-glass-modal {
     position: relative;
-    background: rgba(255, 255, 255, 0.22) !important;
-    backdrop-filter: blur(24px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.6) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+    backdrop-filter: blur(10px) saturate(170%) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(170%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
     border-radius: 28px !important;
-    box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.14),
+    box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.16),
+                0 0 0 1px rgba(255, 255, 255, 0.25),
                 inset 0 1.5px 1.5px rgba(255, 255, 255, 0.75),
-                inset 0 -1px 2px rgba(0, 0, 0, 0.03) !important;
+                inset 0 -1px 2px rgba(0, 0, 0, 0.02) !important;
     padding: 2rem !important;
     color: #0f172a !important;
     overflow: hidden;
 }
 
-/* Specular Light Reflection Line */
+/* Specular Top Reflection Line */
 .modal-content.clear-glass-modal::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 15%;
-    right: 15%;
-    height: 1.5px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent);
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
     pointer-events: none;
 }
 
@@ -77,20 +78,22 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    color: #334155;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #1e293b;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.85rem;
     cursor: pointer;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     transition: all 0.2s ease;
     z-index: 10;
 }
 
 .clear-glass-close:hover {
-    background: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.45);
     color: #0f172a;
     transform: scale(1.06);
 }
@@ -109,48 +112,51 @@
     color: #0f172a;
     letter-spacing: -0.4px;
     margin-bottom: 0.25rem;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 .clear-glass-subtitle {
     font-family: 'Inter', sans-serif;
     font-size: 0.82rem;
-    color: #475569;
+    color: #334155;
     font-weight: 500;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 /* --------------------------------------------------------------------------
-   4. Clear Translucent Form Inputs
+   4. Clear Transparent Form Inputs
    -------------------------------------------------------------------------- */
 .clear-glass-label {
     font-family: 'Inter', sans-serif;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #334155;
+    color: #1e293b;
     letter-spacing: 0.5px;
     margin-bottom: 0.45rem;
     display: block;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 .clear-glass-input-box {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.35) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+    background: rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
     border-radius: 16px !important;
     padding: 0.75rem 1rem !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
     transition: all 0.25s ease;
 }
 
 .clear-glass-input-box:focus-within {
-    background: rgba(255, 255, 255, 0.55) !important;
-    border-color: rgba(37, 99, 235, 0.6) !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-color: #2563eb !important;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
 }
 
 .clear-glass-input-box i {
-    color: #475569;
+    color: #334155;
     margin-right: 0.65rem;
     font-size: 0.95rem;
 }
@@ -162,7 +168,7 @@
     color: #0f172a;
     font-size: 0.88rem;
     font-family: 'Inter', sans-serif;
-    font-weight: 500;
+    font-weight: 600;
     width: 100%;
 }
 
@@ -174,13 +180,14 @@
 .clear-glass-toggle-btn {
     background: transparent;
     border: none;
-    color: #334155;
+    color: #1e293b;
     font-family: 'Inter', sans-serif;
     font-size: 0.78rem;
-    font-weight: 600;
+    font-weight: 700;
     padding: 0;
     cursor: pointer;
     transition: color 0.2s ease;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 .clear-glass-toggle-btn:hover {
@@ -191,28 +198,28 @@
 .clear-glass-status-chip {
     font-family: 'Inter', sans-serif;
     font-size: 0.72rem;
-    font-weight: 600;
+    font-weight: 700;
     padding: 0.25rem 0.75rem;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    color: #334155;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #0f172a;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 .clear-glass-drawer {
-    background: rgba(255, 255, 255, 0.25) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
     border-radius: 18px !important;
     padding: 1rem !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
 }
 
 .clear-drawer-input {
-    background: rgba(255, 255, 255, 0.45) !important;
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
     border-radius: 12px !important;
     padding: 0.55rem 0.85rem !important;
     color: #0f172a !important;
@@ -223,7 +230,7 @@
 }
 
 .clear-drawer-input:focus {
-    background: rgba(255, 255, 255, 0.7) !important;
+    background: rgba(255, 255, 255, 0.45) !important;
     border-color: #2563eb !important;
 }
 
@@ -240,8 +247,8 @@
     font-size: 0.82rem;
     font-weight: 600;
     text-align: center;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 .clear-glass-alert.alert-success {
@@ -283,8 +290,8 @@
 }
 
 .clear-glass-btn-secondary {
-    background: rgba(255, 255, 255, 0.35) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
     color: #0f172a !important;
     font-family: 'Inter', sans-serif;
     font-weight: 600 !important;
@@ -294,16 +301,16 @@
     text-decoration: none !important;
     display: inline-flex;
     align-items: center;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
     cursor: pointer;
     transition: all 0.25s ease;
 }
 
 .clear-glass-btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.6) !important;
+    background: rgba(255, 255, 255, 0.4) !important;
     color: #0f172a !important;
-    border-color: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.7) !important;
     transform: translateY(-2px);
     box-shadow: 0 8px 18px -4px rgba(0, 0, 0, 0.08) !important;
 }
