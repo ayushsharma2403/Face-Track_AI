@@ -20,7 +20,7 @@ def _auto_venv():
 
 _auto_venv()
 
-from flask import Flask, render_template, request, jsonify, Response, send_file
+from flask import Flask, render_template, request, jsonify, Response, send_file, make_response
 import csv
 import time
 from datetime import datetime
@@ -394,7 +394,7 @@ def video_feed():
 @app.route('/train_image', methods=['POST'])
 def train_image():
     name = request.form.get('student_name', '').strip()
-    roll = request.form.get('aktu_roll_number', '').strip()
+    roll = request.form.get('roll_no', '').strip()
     email = request.form.get('email', '').strip()
 
     if not name or not roll:

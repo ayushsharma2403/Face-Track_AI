@@ -107,9 +107,9 @@ $(document).ready(function() {
     $('#train_image').click(function() {
         var btn = $(this);
         var student_name = $('#student_name').val().trim();
-        var aktu_roll_number = $('#aktu_roll_number').val().trim();
+        var roll_no = $('#roll_no').val().trim();
 
-        if (student_name === "" || aktu_roll_number === "") {
+        if (student_name === "" || roll_no === "") {
             logTerminal("Registration failed: Please enter both Student Name and Roll Number.", true);
             return;
         }
@@ -122,7 +122,7 @@ $(document).ready(function() {
             type: 'POST',
             data: {
                 student_name: student_name,
-                aktu_roll_number: aktu_roll_number
+                roll_no: roll_no
             },
             success: function(response) {
                 btn.removeClass('pressed');
@@ -130,7 +130,7 @@ $(document).ready(function() {
                     logTerminal(response.message, false);
                     showConfirmationCard('registered', response.student_name, response.roll_number, response.timestamp, response.photo);
                     $('#student_name').val('');
-                    $('#aktu_roll_number').val('');
+                    $('#roll_no').val('');
                 } else {
                     logTerminal("Error: " + response.message, true);
                 }
