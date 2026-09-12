@@ -328,9 +328,26 @@ class CameraStream:
 
 camera_stream = CameraStream()
 
-# Start camera on app startup
-if cv2_available:
-    camera_stream.start()
+# Server camera is no longer auto-started; browser streams webcam directly via WebRTC/getUserMedia
+# camera_stream instance is retained for Haar cascade face detection and HUD banner state
+
+def decode_base64_image(image_data_str):
+    """
+    Decodes a base64-encoded image string (with or without data:image/... prefix)
+    into an OpenCV BGR numpy image. Returns None if decoding fails.
+    """
+    if not image_data_str:
+        return None
+    try:
+        if ',' in image_data_str:
+            image_data_str = image_data_str.split(',', 1)[1]
+        image_bytes = base64.b64decode(image_data_str)
+        np_arr = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        return img
+    except Exception as e:
+        print(f"[Image Decode] Error decoding base64 image: {e}")
+        return None
 
 def frame_to_base64_thumbnail(image, max_dim=160):
     """Encodes a face crop as a base64 JPEG data URL for UI display."""
@@ -396,9 +413,13 @@ def train_image():
     name = request.form.get('student_name', '').strip()
     roll = request.form.get('roll_no', '').strip()
     email = request.form.get('email', '').strip()
+    image_data = request.form.get('image_data', '').strip()
 
     if not name or not roll:
         return jsonify({'status': 'error', 'message': 'Both Student Name and Roll Number are required.'})
+
+    if not image_data:
+        return jsonify({'status': 'error', 'message': 'No image data received from browser camera.'})
 
     # Validate roll uniqueness in StudentDetails.csv
     if os.path.exists(STUDENT_DETAILS_PATH):
@@ -409,10 +430,10 @@ def train_image():
                 if len(row) > 1 and row[1].strip() == roll:
                     return jsonify({'status': 'error', 'message': f'Roll Number {roll} is already registered to {row[0]}.'})
 
-    # Capture frame from live feed
-    success, frame = camera_stream.get_raw_frame()
-    if not success or frame is None:
-        return jsonify({'status': 'error', 'message': 'Camera is not currently capturing frames. Please ensure your webcam is connected.'})
+    # Decode optical frame sent from browser webcam
+    frame = decode_base64_image(image_data)
+    if frame is None:
+        return jsonify({'status': 'error', 'message': 'Failed to decode image data received from browser camera.'})
 
     # Detect faces
     faces = camera_stream.detect_faces(frame)
@@ -465,10 +486,14 @@ def train_image():
 
 @app.route('/take_attendance', methods=['POST'])
 def take_attendance():
-    # Capture frame from live feed
-    success, frame = camera_stream.get_raw_frame()
-    if not success or frame is None:
-        return jsonify({'status': 'error', 'message': 'Camera is not currently capturing frames. Please check connection.'})
+    image_data = request.form.get('image_data', '').strip()
+    if not image_data:
+        return jsonify({'status': 'error', 'message': 'No image data received from browser camera.'})
+
+    # Decode optical frame sent from browser webcam
+    frame = decode_base64_image(image_data)
+    if frame is None:
+        return jsonify({'status': 'error', 'message': 'Failed to decode image data received from browser camera.'})
 
     faces = camera_stream.detect_faces(frame)
     if len(faces) == 0:

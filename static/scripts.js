@@ -102,6 +102,68 @@ $(document).ready(function() {
     });
 
     // ------------------------------------------------------------------
+    // Browser Webcam Initialization & Frame Capture Helper
+    // ------------------------------------------------------------------
+    var videoElement = document.getElementById('video_feed');
+    var canvasElement = document.getElementById('capture_canvas');
+    var cameraActive = false;
+
+    function initCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            logTerminal("Camera Error: Browser does not support webcam media access.", true);
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                facingMode: 'user'
+            },
+            audio: false
+        })
+        .then(function(stream) {
+            if (videoElement) {
+                videoElement.srcObject = stream;
+                videoElement.onloadedmetadata = function() {
+                    videoElement.play().catch(function(err) {
+                        console.warn("Video playback error:", err);
+                    });
+                    cameraActive = true;
+                    logTerminal("Optical Scanner online: Browser webcam connected successfully.", false);
+                };
+            }
+        })
+        .catch(function(err) {
+            cameraActive = false;
+            console.error("Camera access error:", err);
+            var errDetail = "Camera access denied or no camera device found.";
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                errDetail = "Camera permission denied. Please allow camera access in your browser address bar.";
+            } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                errDetail = "No webcam hardware detected on this device.";
+            } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                errDetail = "Webcam is currently locked or in use by another application.";
+            }
+            logTerminal("Camera Error: " + errDetail, true);
+        });
+    }
+
+    initCamera();
+
+    function captureVideoFrame() {
+        if (!videoElement || !videoElement.videoWidth || !videoElement.videoHeight) {
+            return null;
+        }
+        var canvas = canvasElement || document.createElement('canvas');
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/jpeg', 0.85);
+    }
+
+    // ------------------------------------------------------------------
     // 4. Train Image (Biometric Registration)
     // ------------------------------------------------------------------
     $('#train_image').click(function() {
@@ -114,15 +176,22 @@ $(document).ready(function() {
             return;
         }
 
+        var imageData = captureVideoFrame();
+        if (!imageData) {
+            logTerminal("Registration failed: Camera feed is not ready. Please ensure your browser camera is allowed and active.", true);
+            return;
+        }
+
         btn.addClass('pressed');
-        logTerminal("Initiating face scan & biometric model training for: " + student_name + "...", false);
+        logTerminal("Capturing optical snapshot & training biometric model for: " + student_name + "...", false);
 
         $.ajax({
             url: '/train_image',
             type: 'POST',
             data: {
                 student_name: student_name,
-                roll_no: roll_no
+                roll_no: roll_no,
+                image_data: imageData
             },
             success: function(response) {
                 btn.removeClass('pressed');
@@ -147,12 +216,22 @@ $(document).ready(function() {
     // ------------------------------------------------------------------
     $('#take_attendance').click(function() {
         var btn = $(this);
+
+        var imageData = captureVideoFrame();
+        if (!imageData) {
+            logTerminal("Attendance failed: Camera feed is not ready. Please ensure your browser camera is allowed and active.", true);
+            return;
+        }
+
         btn.addClass('pressed');
-        logTerminal("Scanning optical feed for facial biometric recognition...", false);
+        logTerminal("Scanning optical snapshot for facial biometric recognition...", false);
 
         $.ajax({
             url: '/take_attendance',
             type: 'POST',
+            data: {
+                image_data: imageData
+            },
             success: function(response) {
                 btn.removeClass('pressed');
                 if (response.status === 'success') {

@@ -177,7 +177,8 @@
                         <!-- Video Container Frame -->
                         <div class="video-feed-wrapper flex-grow-1">
                             <div class="video-feed">
-                                <img id="video_feed" src="{{ url_for('video_feed') }}" class="img-fluid" alt="Webcam Feed">
+                                <video id="video_feed" autoplay playsinline muted class="img-fluid"></video>
+                                <canvas id="capture_canvas" style="display:none;"></canvas>
                             </div>
                         </div>
 
