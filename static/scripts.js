@@ -39,30 +39,74 @@ $(document).ready(function() {
     }
 
     // ------------------------------------------------------------------
-    // 2b. Browser Camera Client-Side Streamer (Cloud Deployment Fallback)
+    // 2b. Hardware-Accelerated Zero-Lag Browser Camera (Cloud Deployment Mode)
     // ------------------------------------------------------------------
     var isBrowserCamActive = false;
     var browserCamInterval = null;
     var $browserVideo = document.getElementById('browser_cam_video');
     var $browserCanvas = document.getElementById('browser_cam_canvas');
+    var $browserHud = document.getElementById('browser_hud_canvas');
 
     function initBrowserCameraFallback() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             return;
         }
 
-        // Test if the image feed is delivering frames; if broken/static in cloud, activate browser cam
+        var isCloudHost = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
         var imgFeed = document.getElementById('video_feed');
-        if (imgFeed) {
+
+        if (isCloudHost) {
+            // In cloud mode, directly switch to hardware video for instantaneous 60 FPS zero-lag viewing
+            if (imgFeed) $(imgFeed).hide();
+            $($browserVideo).show();
+            $($browserHud).show();
+            startBrowserWebcam();
+        } else if (imgFeed) {
             imgFeed.onerror = function() {
+                $(imgFeed).hide();
+                $($browserVideo).show();
+                $($browserHud).show();
                 startBrowserWebcam();
             };
         }
+    }
 
-        // Also check if running in non-localhost (i.e., cloud deployment like Render)
-        var isCloudHost = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-        if (isCloudHost) {
-            startBrowserWebcam();
+    function drawHudOverlay(faces, hudBanner) {
+        if (!$browserHud || !$browserVideo || $browserVideo.videoWidth === 0) return;
+        var vw = $browserVideo.videoWidth;
+        var vh = $browserVideo.videoHeight;
+        $browserHud.width = vw;
+        $browserHud.height = vh;
+
+        var ctx = $browserHud.getContext('2d');
+        ctx.clearRect(0, 0, vw, vh);
+
+        if (faces && faces.length > 0) {
+            faces.forEach(function(f) {
+                // Draw sleek bounding box
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = f.verified ? '#10b981' : '#2563eb';
+                ctx.strokeRect(f.x, f.y, f.w, f.h);
+
+                // Draw Label Badge
+                ctx.font = 'bold 15px sans-serif';
+                var textWidth = ctx.measureText(f.label).width;
+                ctx.fillStyle = f.verified ? '#10b981' : '#2563eb';
+                ctx.fillRect(f.x, f.y - 26, textWidth + 14, 24);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(f.label, f.x + 7, f.y - 8);
+            });
+        }
+
+        if (hudBanner) {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.fillRect(20, 20, vw - 40, 36);
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 16px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(hudBanner, vw / 2, 44);
+            ctx.textAlign = 'left';
         }
     }
 
@@ -75,33 +119,54 @@ $(document).ready(function() {
                     $browserVideo.srcObject = stream;
                     $browserVideo.play();
                 }
-                logTerminal("[CLOUD READY] Browser optical sensor connected.", false);
+                logTerminal("[ZERO-LAG ACTIVE] Local hardware optical stream running at 60 FPS.", false);
 
+                if (!$browserCanvas) return;
+                $browserCanvas.width = 480;
+                $browserCanvas.height = 360;
                 var ctx = $browserCanvas.getContext('2d');
                 var isUploading = false;
 
-                // Stream frames at ~12-15 FPS to the server for facial recognition processing
+                // Send lightweight resized frame to OpenCV backend for detection & face matching
                 browserCamInterval = setInterval(function() {
                     if (isUploading || !$browserVideo || $browserVideo.videoWidth === 0) return;
                     isUploading = true;
 
-                    ctx.drawImage($browserVideo, 0, 0, 640, 480);
-                    var dataUrl = $browserCanvas.toDataURL('image/jpeg', 0.7);
+                    ctx.drawImage($browserVideo, 0, 0, 480, 360);
+                    var dataUrl = $browserCanvas.toDataURL('image/jpeg', 0.65);
 
                     $.ajax({
                         url: '/upload_frame',
                         type: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({ frame: dataUrl }),
-                        timeout: 1000,
+                        timeout: 1500,
+                        success: function(res) {
+                            if (res && res.faces) {
+                                // Scale detection back to video dimensions (480x360 -> full video)
+                                var scaleX = $browserVideo.videoWidth / 480.0;
+                                var scaleY = $browserVideo.videoHeight / 360.0;
+                                var scaledFaces = res.faces.map(function(f) {
+                                    return {
+                                        x: f.x * scaleX,
+                                        y: f.y * scaleY,
+                                        w: f.w * scaleX,
+                                        h: f.h * scaleY,
+                                        label: f.label,
+                                        verified: f.verified
+                                    };
+                                });
+                                drawHudOverlay(scaledFaces, res.hud_banner);
+                            }
+                        },
                         complete: function() {
                             isUploading = false;
                         }
                     });
-                }, 80);
+                }, 120); // Steady 8-10 background syncs per sec without queuing
             })
             .catch(function(err) {
-                console.log("[Browser Camera] Local camera permission or device not requested:", err);
+                console.log("[Browser Camera] Local camera permission or device error:", err);
             });
     }
 

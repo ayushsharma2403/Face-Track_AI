@@ -694,7 +694,7 @@ def video_feed():
 
 @app.route('/upload_frame', methods=['POST'])
 def upload_frame():
-    """Receives browser webcam JPEG frames in cloud environments and feeds them to OpenCV."""
+    """Receives browser webcam JPEG frames in cloud environments, feeds to OpenCV, and returns detected faces."""
     try:
         data = request.get_json(silent=True)
         if not data or 'frame' not in data:
@@ -710,7 +710,27 @@ def upload_frame():
 
         if frame is not None:
             camera_stream.push_external_frame(frame)
-            return jsonify({'status': 'success'})
+
+            # Return detected bounding boxes so the browser can draw HUD overlays with zero lag
+            faces = camera_stream.detect_faces(frame)
+            results = []
+            for (x, y, w, h) in faces:
+                res = {'x': int(x), 'y': int(y), 'w': int(w), 'h': int(h), 'label': 'FACE DETECTED', 'verified': False}
+                if face_manager.is_trained:
+                    crop = extract_face_crop(frame, (x, y, w, h))
+                    if crop is not None:
+                        student, dist, conf_pct = face_manager.predict(crop)
+                        if student is not None and dist <= 80.0:
+                            res['label'] = f"{student['name']} ({student['roll']}) [{conf_pct}%]"
+                            res['verified'] = True
+                            res['conf_pct'] = conf_pct
+                results.append(res)
+
+            return jsonify({
+                'status': 'success',
+                'faces': results,
+                'hud_banner': camera_stream.hud_banner_text if time.time() < camera_stream.hud_banner_expire else ''
+            })
         return jsonify({'status': 'error', 'message': 'Decode failed'}), 400
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
