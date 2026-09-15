@@ -39,6 +39,75 @@ $(document).ready(function() {
     }
 
     // ------------------------------------------------------------------
+    // 2b. Browser Camera Client-Side Streamer (Cloud Deployment Fallback)
+    // ------------------------------------------------------------------
+    var isBrowserCamActive = false;
+    var browserCamInterval = null;
+    var $browserVideo = document.getElementById('browser_cam_video');
+    var $browserCanvas = document.getElementById('browser_cam_canvas');
+
+    function initBrowserCameraFallback() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            return;
+        }
+
+        // Test if the image feed is delivering frames; if broken/static in cloud, activate browser cam
+        var imgFeed = document.getElementById('video_feed');
+        if (imgFeed) {
+            imgFeed.onerror = function() {
+                startBrowserWebcam();
+            };
+        }
+
+        // Also check if running in non-localhost (i.e., cloud deployment like Render)
+        var isCloudHost = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        if (isCloudHost) {
+            startBrowserWebcam();
+        }
+    }
+
+    function startBrowserWebcam() {
+        if (isBrowserCamActive) return;
+        navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 } } })
+            .then(function(stream) {
+                isBrowserCamActive = true;
+                if ($browserVideo) {
+                    $browserVideo.srcObject = stream;
+                    $browserVideo.play();
+                }
+                logTerminal("[CLOUD READY] Browser optical sensor connected.", false);
+
+                var ctx = $browserCanvas.getContext('2d');
+                var isUploading = false;
+
+                // Stream frames at ~12-15 FPS to the server for facial recognition processing
+                browserCamInterval = setInterval(function() {
+                    if (isUploading || !$browserVideo || $browserVideo.videoWidth === 0) return;
+                    isUploading = true;
+
+                    ctx.drawImage($browserVideo, 0, 0, 640, 480);
+                    var dataUrl = $browserCanvas.toDataURL('image/jpeg', 0.7);
+
+                    $.ajax({
+                        url: '/upload_frame',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ frame: dataUrl }),
+                        timeout: 1000,
+                        complete: function() {
+                            isUploading = false;
+                        }
+                    });
+                }, 80);
+            })
+            .catch(function(err) {
+                console.log("[Browser Camera] Local camera permission or device not requested:", err);
+            });
+    }
+
+    initBrowserCameraFallback();
+
+    // ------------------------------------------------------------------
     // 3. Biometric Confirmation HUD Card Helper
     // ------------------------------------------------------------------
     var confirmationTimer = null;

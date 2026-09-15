@@ -228,6 +228,9 @@
                         <div class="video-feed-wrapper flex-grow-1">
                             <div class="video-feed">
                                 <img id="video_feed" src="{{ url_for('video_feed') }}" class="img-fluid" alt="Webcam Feed">
+                                <!-- Hidden elements for Browser Camera Fallback (when hosted in cloud) -->
+                                <video id="browser_cam_video" playsinline autoplay muted style="display: none;"></video>
+                                <canvas id="browser_cam_canvas" style="display: none;" width="640" height="480"></canvas>
                             </div>
                         </div>
 

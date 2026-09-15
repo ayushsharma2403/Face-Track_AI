@@ -72,6 +72,50 @@ CASCADE_PATH = os.path.join(BASE_DIR, 'haarcascade_frontalface_default.xml')
 os.makedirs(TRAINED_IMAGES_PATH, exist_ok=True)
 
 # -------------------------------------------------------------------------
+# Supabase Cloud Database Integration
+# -------------------------------------------------------------------------
+supabase = None
+try:
+    from supabase import create_client, Client
+    sb_url = os.getenv('SUPABASE_URL')
+    sb_key = os.getenv('SUPABASE_KEY')
+    if sb_url and sb_key:
+        supabase = create_client(sb_url, sb_key)
+        print(f"[Supabase] Connected to Supabase cloud instance: {sb_url}")
+    else:
+        print("[Supabase] Notice: SUPABASE_URL or SUPABASE_KEY not set. Operating on local CSV fallback.")
+except Exception as sb_err:
+    print(f"[Supabase] Initialization notice: {sb_err}. Operating on local CSV fallback.")
+    supabase = None
+
+def sync_student_to_supabase(name, roll, email, timestamp):
+    """Saves newly registered student details to Supabase table 'students'."""
+    if supabase is not None:
+        try:
+            supabase.table('students').upsert({
+                'name': name,
+                'roll_no': roll,
+                'email': email,
+                'created_at': timestamp
+            }, on_conflict='roll_no').execute()
+            print(f"[Supabase] Synced student record: {name} ({roll})")
+        except Exception as e:
+            print(f"[Supabase] Sync student error: {e}")
+
+def sync_attendance_to_supabase(name, roll, timestamp_str):
+    """Saves verified attendance record to Supabase table 'attendance'."""
+    if supabase is not None:
+        try:
+            supabase.table('attendance').insert({
+                'name': name,
+                'roll_no': roll,
+                'timestamp': timestamp_str
+            }).execute()
+            print(f"[Supabase] Synced attendance record: {name} ({roll}) at {timestamp_str}")
+        except Exception as e:
+            print(f"[Supabase] Sync attendance error: {e}")
+
+# -------------------------------------------------------------------------
 # Face Preprocessing & Standardization Helpers (Illumination & Outfit Invariant)
 # -------------------------------------------------------------------------
 def extract_face_crop(frame, bbox):
@@ -343,6 +387,12 @@ class CameraStream:
             time.sleep(0.01)
         return False, None
 
+    def push_external_frame(self, frame):
+        """Allows client browsers in cloud deployment environments to stream frames directly to OpenCV."""
+        if frame is not None and frame.size > 0:
+            with self.lock:
+                self.latest_frame = frame
+
     def set_hud_banner(self, text, duration=3.5):
         with self.lock:
             self.hud_banner_text = text
@@ -580,6 +630,9 @@ def auto_attendance_scan():
                 writer.writerow(['Name', 'Roll', 'Timestamp'])
             writer.writerow([name, roll, current_time_str])
 
+        # Sync attendance record to Supabase
+        sync_attendance_to_supabase(name, roll, current_time_str)
+
         camera_stream.set_hud_banner(f"AUTO-VERIFIED: {name} ({conf_pct}%)")
         return jsonify({
             'status': 'success',
@@ -638,6 +691,29 @@ def video_feed():
     resp = make_response(svg)
     resp.headers['Content-Type'] = 'image/svg+xml'
     return resp
+
+@app.route('/upload_frame', methods=['POST'])
+def upload_frame():
+    """Receives browser webcam JPEG frames in cloud environments and feeds them to OpenCV."""
+    try:
+        data = request.get_json(silent=True)
+        if not data or 'frame' not in data:
+            return jsonify({'status': 'error', 'message': 'No frame payload'}), 400
+
+        b64_data = data['frame']
+        if ',' in b64_data:
+            b64_data = b64_data.split(',', 1)[1]
+
+        img_bytes = base64.b64decode(b64_data)
+        np_arr = np.frombuffer(img_bytes, np.uint8)
+        frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+        if frame is not None:
+            camera_stream.push_external_frame(frame)
+            return jsonify({'status': 'success'})
+        return jsonify({'status': 'error', 'message': 'Decode failed'}), 400
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/train_image', methods=['POST'])
 def train_image():
@@ -707,6 +783,9 @@ def train_image():
             writer.writerow(['Name', 'Roll', 'Email', 'RegisteredAt'])
         timestamp_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         writer.writerow([name, roll, email, timestamp_now])
+
+    # Sync student record to Supabase
+    sync_student_to_supabase(name, roll, email, timestamp_now)
 
     # Re-train LBPH model with new samples and lighting augmentations
     face_manager.train_from_storage()
@@ -803,6 +882,9 @@ def take_attendance():
         if not file_exists:
             writer.writerow(['Name', 'Roll', 'Timestamp'])
         writer.writerow([name, roll, current_time_str])
+
+    # Sync attendance to Supabase
+    sync_attendance_to_supabase(name, roll, current_time_str)
 
     # Flash HUD confirmation
     camera_stream.set_hud_banner(f"ATTENDANCE MARKED: {name} (ROLL {roll})")
