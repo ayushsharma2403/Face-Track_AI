@@ -20,7 +20,7 @@ def _auto_venv():
 
 _auto_venv()
 
-from flask import Flask, render_template, request, jsonify, Response, send_file, make_response
+from flask import Flask, render_template, request, jsonify, Response, send_file, make_response, session, redirect, url_for
 import csv
 import time
 from datetime import datetime
@@ -61,6 +61,8 @@ def load_env_file():
 load_env_file()
 
 app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY', 'facetrack_ai_secret_key_2026_super_secure')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'admin123')
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TRAINED_IMAGES_PATH = os.path.join(BASE_DIR, 'trained_images')
 ATTENDANCE_PATH = os.path.join(BASE_DIR, 'attendance.csv')
@@ -453,11 +455,147 @@ def frame_to_base64_thumbnail(image, max_dim=160):
     return None
 
 # -------------------------------------------------------------------------
-# Flask Routes
+# Flask Routes & Role-Based Authentication
 # -------------------------------------------------------------------------
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        if 'role' in session:
+            return redirect(url_for('index'))
+        return render_template('login.html')
+
+    data = request.get_json(silent=True) or request.form
+    role = (data.get('role') or '').strip().lower()
+    password = (data.get('password') or '').strip()
+
+    if role == 'admin':
+        if password == ADMIN_PASSWORD:
+            session['role'] = 'admin'
+            return jsonify({'status': 'success', 'role': 'admin', 'redirect': url_for('index')})
+        else:
+            return jsonify({'status': 'error', 'message': 'Incorrect admin password. Access denied.'})
+    elif role == 'user':
+        session['role'] = 'user'
+        return jsonify({'status': 'success', 'role': 'user', 'redirect': url_for('index')})
+    else:
+        return jsonify({'status': 'error', 'message': 'Please select a valid role (Admin or User).'})
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/switch_role', methods=['POST'])
+def switch_role():
+    data = request.get_json(silent=True) or request.form
+    target_role = (data.get('target_role') or '').strip().lower()
+    password = (data.get('password') or '').strip()
+
+    if target_role == 'admin':
+        if password == ADMIN_PASSWORD:
+            session['role'] = 'admin'
+            return jsonify({'status': 'success', 'role': 'admin', 'message': 'Switched to Admin mode.'})
+        else:
+            return jsonify({'status': 'error', 'message': 'Incorrect admin password. Cannot switch to Admin.'})
+    elif target_role == 'user':
+        session['role'] = 'user'
+        return jsonify({'status': 'success', 'role': 'user', 'message': 'Switched to User mode.'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Invalid target role.'})
+
+@app.route('/role_status')
+def role_status():
+    return jsonify({
+        'role': session.get('role', 'user'),
+        'is_admin': session.get('role') == 'admin'
+    })
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if 'role' not in session:
+        return redirect(url_for('login'))
+    return render_template('index.html', role=session.get('role', 'user'))
+
+@app.route('/auto_attendance_scan', methods=['POST'])
+def auto_attendance_scan():
+    """Background endpoint for User Mode: automatically takes attendance when match > 80%."""
+    if not cv2_available or not face_manager.is_trained:
+        return jsonify({'status': 'idle', 'message': 'Model not trained or camera unavailable'})
+
+    success, frame = camera_stream.get_raw_frame(timeout=0.4)
+    if not success or frame is None:
+        return jsonify({'status': 'idle', 'message': 'No video frame available'})
+
+    faces = camera_stream.detect_faces(frame)
+    if len(faces) == 0:
+        return jsonify({'status': 'idle', 'message': 'No face detected in video feed'})
+
+    faces_sorted = sorted(faces, key=lambda f: f[2] * f[3], reverse=True)
+    face_crop = extract_face_crop(frame, faces_sorted[0])
+    if face_crop is None or face_crop.size == 0:
+        return jsonify({'status': 'idle'})
+
+    student, distance, conf_pct = face_manager.predict(face_crop)
+
+    # Automatically mark attendance only if match accuracy > 80%
+    if student is not None and conf_pct >= 80:
+        name = student['name']
+        roll = student['roll']
+        now = datetime.now()
+        today_date = now.strftime('%Y-%m-%d')
+        current_time_str = now.strftime('%Y-%m-%d %H:%M:%S')
+
+        # Check if already marked today
+        already_marked = False
+        existing_time = ""
+        if os.path.exists(ATTENDANCE_PATH):
+            with open(ATTENDANCE_PATH, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                next(reader, None)
+                for row in reader:
+                    if len(row) >= 3 and row[1].strip() == roll and row[2].strip().startswith(today_date):
+                        already_marked = True
+                        existing_time = row[2].strip()
+                        break
+
+        thumbnail_b64 = frame_to_base64_thumbnail(face_crop)
+
+        if already_marked:
+            camera_stream.set_hud_banner(f"ALREADY MARKED: {name} (ROLL {roll})")
+            return jsonify({
+                'status': 'already_marked',
+                'student_name': name,
+                'roll_number': roll,
+                'confidence': conf_pct,
+                'timestamp': existing_time,
+                'photo': thumbnail_b64,
+                'message': f'Attendance was ALREADY recorded for {name} ({roll}) today at {existing_time}.'
+            })
+
+        # Record attendance to CSV
+        file_exists = os.path.exists(ATTENDANCE_PATH)
+        with open(ATTENDANCE_PATH, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            if not file_exists:
+                writer.writerow(['Name', 'Roll', 'Timestamp'])
+            writer.writerow([name, roll, current_time_str])
+
+        camera_stream.set_hud_banner(f"AUTO-VERIFIED: {name} ({conf_pct}%)")
+        return jsonify({
+            'status': 'success',
+            'student_name': name,
+            'roll_number': roll,
+            'confidence': conf_pct,
+            'timestamp': current_time_str,
+            'photo': thumbnail_b64,
+            'message': f'Auto-attendance confirmed for {name} (Roll: {roll}) with {conf_pct}% biometric accuracy!'
+        })
+
+    return jsonify({
+        'status': 'below_threshold',
+        'confidence': conf_pct,
+        'message': f'Biometric confidence ({conf_pct}%) is below the 80% auto-attendance threshold.'
+    })
 
 def gen_frames():
     """Generator function yielding smooth 30 FPS JPEG frames for the video feed."""
@@ -503,6 +641,9 @@ def video_feed():
 
 @app.route('/train_image', methods=['POST'])
 def train_image():
+    if session.get('role') != 'admin':
+        return jsonify({'status': 'error', 'message': 'Administrator privileges required for student registration.'}), 403
+
     name = request.form.get('student_name', '').strip()
     roll = request.form.get('roll_no', '').strip()
     email = request.form.get('email', '').strip()
@@ -679,6 +820,9 @@ def take_attendance():
 @app.route('/download_attendance', methods=['GET'])
 def download_attendance():
     """Directly download the attendance CSV report."""
+    if session.get('role') != 'admin':
+        return "Access denied: Attendance report download is restricted to Administrator.", 403
+
     if not os.path.exists(ATTENDANCE_PATH):
         # Create an empty attendance file with headers
         with open(ATTENDANCE_PATH, 'w', newline='', encoding='utf-8') as f:
@@ -723,6 +867,9 @@ def get_email_config():
 
 @app.route('/send_email', methods=['POST'])
 def send_email():
+    if session.get('role') != 'admin':
+        return jsonify({'status': 'error', 'message': 'Administrator privileges required to dispatch reports.'}), 403
+
     try:
         import urllib.parse
         recipient_email = request.form.get('email', '').strip()
@@ -848,6 +995,9 @@ def send_email():
 
 @app.route('/delete_data', methods=['POST'])
 def delete_data():
+    if session.get('role') != 'admin':
+        return jsonify({'status': 'error', 'message': 'Administrator privileges required to reset system data.'}), 403
+
     try:
         if os.path.exists(ATTENDANCE_PATH):
             os.remove(ATTENDANCE_PATH)

@@ -691,6 +691,149 @@ body {
 }
 
 /* ==========================================================================
+   Role Badges, Switcher & User Mode Controls
+   ========================================================================== */
+.role-control-group {
+    display: flex;
+    align-items: center;
+}
+
+.role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--neu-shadow-sm);
+}
+
+.role-pill-admin {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(59, 130, 246, 0.05));
+    color: #1d4ed8;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.role-pill-user {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.05));
+    color: #047857;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.neu-btn-switch-sm, .neu-btn-logout-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--neu-surface) !important;
+    color: var(--text-main) !important;
+    text-decoration: none !important;
+    box-shadow: var(--neu-shadow-sm) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    cursor: pointer;
+    transition: all 0.25s ease !important;
+}
+
+.neu-btn-switch-sm:hover, .neu-btn-logout-sm:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--neu-shadow-hover) !important;
+    color: var(--accent-blue) !important;
+}
+
+.neu-btn-logout-sm:hover {
+    color: var(--accent-rose) !important;
+}
+
+/* User Mode Banner Notice */
+.user-mode-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(37, 99, 235, 0.05) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    box-shadow: 0 4px 18px rgba(16, 185, 129, 0.08);
+}
+
+.user-mode-badge-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.user-mode-title {
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #065f46;
+    margin-bottom: 0.2rem;
+}
+
+.user-mode-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.auto-scan-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #047857;
+    background: rgba(16, 185, 129, 0.12);
+    padding: 0.2rem 0.6rem;
+    border-radius: 50px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.auto-scan-indicator i {
+    animation: pulse-bolt 1.5s infinite;
+}
+
+@keyframes pulse-bolt {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.25); opacity: 0.7; }
+}
+
+/* Switch Role Modal Tab Button States */
+.role-tab-btn {
+    transition: all 0.25s ease;
+    color: var(--text-muted);
+    background: transparent;
+}
+
+.role-tab-btn.active.admin-active {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.role-tab-btn.active.user-active {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+/* ==========================================================================
    Modals - Pure Frosted Glassmorphism (Image 2)
    ========================================================================== */
 .modal-backdrop {
@@ -737,3 +880,4 @@ body {
         flex-direction: column;
     }
 }
+

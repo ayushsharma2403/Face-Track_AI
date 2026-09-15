@@ -325,7 +325,157 @@ $(document).ready(function() {
     });
 
     // ------------------------------------------------------------------
-    // 8. Ambient Mouse Pointer Glow & Dynamic Click Interactions
+    // 8. Role Switcher Modal Logic (Admin / User Toggle)
+    // ------------------------------------------------------------------
+    var switchRoleModal = null;
+    function getSwitchRoleModal() {
+        if (!switchRoleModal && window.bootstrap && bootstrap.Modal) {
+            var el = document.getElementById('switchRoleModal');
+            if (el) switchRoleModal = new bootstrap.Modal(el);
+        }
+        return switchRoleModal;
+    }
+
+    var selectedTargetRole = (window.CURRENT_USER_ROLE === 'admin') ? 'user' : 'admin';
+
+    function updateSwitchModalUI(targetRole) {
+        selectedTargetRole = targetRole;
+        if (targetRole === 'admin') {
+            $('#modal_tab_admin').addClass('active admin-active');
+            $('#modal_tab_user').removeClass('active user-active');
+            $('#modal_admin_password_area').slideDown(200);
+            $('#target_role_text').text('Admin');
+            $('#modal_admin_password').focus();
+        } else {
+            $('#modal_tab_user').addClass('active user-active');
+            $('#modal_tab_admin').removeClass('active admin-active');
+            $('#modal_admin_password_area').slideUp(200);
+            $('#target_role_text').text('User');
+        }
+        $('#switch_modal_alert').hide().text('');
+    }
+
+    $('#btn_open_switch_role').click(function() {
+        var modal = getSwitchRoleModal();
+        var defaultTarget = (window.CURRENT_USER_ROLE === 'admin') ? 'user' : 'admin';
+        $('#modal_admin_password').val('');
+        $('#switch_modal_alert').hide().text('');
+        updateSwitchModalUI(defaultTarget);
+        if (modal) modal.show();
+    });
+
+    $('#modal_tab_admin').click(function() {
+        updateSwitchModalUI('admin');
+    });
+
+    $('#modal_tab_user').click(function() {
+        updateSwitchModalUI('user');
+    });
+
+    $('#btn_confirm_switch_role').click(function() {
+        var btn = $(this);
+        var password = $('#modal_admin_password').val().trim();
+        var alertBox = $('#switch_modal_alert');
+
+        if (selectedTargetRole === 'admin' && !password) {
+            alertBox.removeClass('alert-success').addClass('alert-danger')
+                .html('<i class="fa-solid fa-circle-exclamation me-1"></i> Please enter the administrator password.').show();
+            $('#modal_admin_password').focus();
+            return;
+        }
+
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status"></span> Switching...');
+        alertBox.hide();
+
+        $.ajax({
+            url: '/switch_role',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                target_role: selectedTargetRole,
+                password: password
+            }),
+            success: function(res) {
+                btn.prop('disabled', false).html('<span class="btn-label"><i class="fa-solid fa-check-circle me-1"></i> Switch to ' + (selectedTargetRole === 'admin' ? 'Admin' : 'User') + '</span>');
+                if (res.status === 'success') {
+                    alertBox.removeClass('alert-danger').addClass('alert-success')
+                        .html('<i class="fa-solid fa-circle-check me-1"></i> ' + res.message).show();
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 600);
+                } else {
+                    alertBox.removeClass('alert-success').addClass('alert-danger')
+                        .html('<i class="fa-solid fa-triangle-exclamation me-1"></i> ' + res.message).show();
+                }
+            },
+            error: function(xhr) {
+                btn.prop('disabled', false).html('<span class="btn-label"><i class="fa-solid fa-check-circle me-1"></i> Switch to ' + (selectedTargetRole === 'admin' ? 'Admin' : 'User') + '</span>');
+                var msg = 'Failed to switch role.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                alertBox.removeClass('alert-success').addClass('alert-danger')
+                    .html('<i class="fa-solid fa-triangle-exclamation me-1"></i> ' + msg).show();
+            }
+        });
+    });
+
+    // Enter key submits switch role modal
+    $('#modal_admin_password').keypress(function(e) {
+        if (e.which === 13) {
+            $('#btn_confirm_switch_role').click();
+        }
+    });
+
+    // ------------------------------------------------------------------
+    // 9. Automatic Attendance Scanner (User Mode Only)
+    // ------------------------------------------------------------------
+    if (window.CURRENT_USER_ROLE === 'user') {
+        var autoScanCooldown = false;
+        var autoScanInterval = null;
+
+        function runAutoScan() {
+            if (autoScanCooldown) return;
+
+            $.ajax({
+                url: '/auto_attendance_scan',
+                type: 'POST',
+                timeout: 3000,
+                success: function(res) {
+                    if (res.status === 'success') {
+                        logTerminal("[AUTO-ATTENDANCE] " + res.message + " (Confidence: " + res.confidence + "%)", false);
+                        showConfirmationCard('verified', res.student_name, res.roll_number, res.timestamp, res.photo);
+
+                        // Cooldown for 6 seconds to prevent duplicate spamming
+                        autoScanCooldown = true;
+                        setTimeout(function() {
+                            autoScanCooldown = false;
+                        }, 6000);
+                    } else if (res.status === 'already_marked') {
+                        // Already marked today, show info but enforce 8s cooldown
+                        logTerminal("[AUTO-ATTENDANCE] " + res.message, false, true);
+                        showConfirmationCard('already_marked', res.student_name, res.roll_number, res.timestamp, res.photo);
+
+                        autoScanCooldown = true;
+                        setTimeout(function() {
+                            autoScanCooldown = false;
+                        }, 8000);
+                    }
+                },
+                error: function() {
+                    // Silent fail during continuous scanning loop
+                }
+            });
+        }
+
+        // Start scan loop after camera stream stabilizes (2.5s initial delay)
+        setTimeout(function() {
+            autoScanInterval = setInterval(runAutoScan, 1500);
+        }, 2500);
+    }
+
+    // ------------------------------------------------------------------
+    // 10. Ambient Mouse Pointer Glow & Dynamic Click Interactions
     // ------------------------------------------------------------------
     var $ambientGlow = $('<div id="ambient-cursor-glow" class="ambient-cursor-glow"></div>');
     $('body').append($ambientGlow);

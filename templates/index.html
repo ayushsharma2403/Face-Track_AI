@@ -18,14 +18,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Custom Minimalist Neumorphic & Glassmorphic Stylesheets -->
-    <link rel="stylesheet" href="/static/style.css?v=ambient_v2">
-    <link rel="stylesheet" href="/static/glass-theme.css?v=ambient_v2">
+    <!-- Custom Minimalist Neumorphic & Glassmorphic Stylesheets -->
+    <link rel="stylesheet" href="/static/style.css?v=ambient_v3">
+    <link rel="stylesheet" href="/static/glass-theme.css?v=ambient_v3">
+
+    <!-- Pass Current Role to Scripts -->
+    <script>
+        window.CURRENT_USER_ROLE = "{{ role|default('user') }}";
+    </script>
 
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 
-<body>
+<body class="{% if role == 'user' %}user-mode-active{% else %}admin-mode-active{% endif %}">
     <!-- Background Ambient Glow -->
     <div class="bg-grid"></div>
 
@@ -43,6 +49,21 @@
             </div>
             
             <div class="header-right">
+                <!-- Role Status & Switcher Controls -->
+                <div class="role-control-group d-flex align-items-center gap-2">
+                    <div class="role-pill {% if role == 'admin' %}role-pill-admin{% else %}role-pill-user{% endif %}">
+                        <i class="fa-solid {% if role == 'admin' %}fa-shield-halved{% else %}fa-user-check{% endif %}"></i>
+                        <span id="role-display-text">{% if role == 'admin' %}ADMIN{% else %}USER MODE{% endif %}</span>
+                    </div>
+                    <button type="button" id="btn_open_switch_role" class="neu-btn neu-btn-switch-sm" title="Switch User / Admin Mode">
+                        <i class="fa-solid fa-arrows-rotate btn-icon"></i>
+                        <span class="btn-label">Switch</span>
+                    </button>
+                    <a href="/logout" class="neu-btn neu-btn-logout-sm" title="Sign Out">
+                        <i class="fa-solid fa-arrow-right-from-bracket btn-icon"></i>
+                    </a>
+                </div>
+
                 <div class="status-badge">
                     <span class="status-dot pulsing"></span>
                     <span class="status-text" id="sys-status">SYSTEM READY</span>
@@ -59,16 +80,34 @@
                 <div class="col-lg-6 d-flex flex-column">
                     <div class="neu-card main-console flex-grow-1 d-flex flex-column justify-content-between">
                         
-                        <!-- Panel Section Header -->
                         <div>
-                            <div class="console-section-header">
+                            <!-- User Mode Special Notice Banner -->
+                            {% if role == 'user' %}
+                            <div class="user-mode-alert mb-4">
+                                <div class="user-mode-badge-icon">
+                                    <i class="fa-solid fa-user-clock"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="user-mode-title">User Attendance Mode Active</div>
+                                    <div class="user-mode-desc">
+                                        Only attendance verification is permitted in this mode.
+                                    </div>
+                                    <div class="auto-scan-indicator mt-1">
+                                        <i class="fa-solid fa-bolt"></i> Auto-attendance active: Marks automatically when face accuracy &gt; 80%
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Panel Section Header (Admin Only) -->
+                            <div class="console-section-header {% if role == 'user' %}d-none{% endif %}">
                                 <div class="section-title">
                                     <i class="fa-solid fa-id-card accent-icon"></i> Student Registration
                                 </div>
                             </div>
 
-                            <!-- Input Fields Group -->
-                            <div class="input-section mb-4">
+                            <!-- Input Fields Group (Admin Only) -->
+                            <div class="input-section mb-4 {% if role == 'user' %}d-none{% endif %}">
                                 <label class="input-label mb-2">ENTER STUDENT DETAILS</label>
                                 
                                 <div class="row g-3">
@@ -90,6 +129,8 @@
                             <!-- Action Buttons Grid -->
                             <div class="action-section mb-3">
                                 <div class="row g-3 buttons">
+                                    {% if role == 'admin' %}
+                                    <!-- Full Admin Features -->
                                     <div class="col-6">
                                         <button id="train_image" class="neu-btn neu-btn-primary w-100">
                                             <i class="fa-solid fa-camera btn-icon"></i>
@@ -120,6 +161,15 @@
                                             <span class="btn-label">Download Attendance CSV</span>
                                         </a>
                                     </div>
+                                    {% else %}
+                                    <!-- User Mode: Single Feature Only (Take Attendance) -->
+                                    <div class="col-12">
+                                        <button id="take_attendance" class="neu-btn neu-btn-success w-100 py-4 fs-6">
+                                            <i class="fa-solid fa-fingerprint btn-icon fs-5"></i>
+                                            <span class="btn-label fw-bold">Scan & Take Attendance</span>
+                                        </button>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -283,11 +333,74 @@
         </div>
     </div>
 
+    <!-- Switch Role Modal (Crystal Clear Frosted Glass) -->
+    <div class="modal fade" id="switchRoleModal" tabindex="-1" aria-labelledby="switchRoleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content clear-glass-modal">
+                
+                <button type="button" class="clear-glass-close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <div class="clear-glass-header">
+                    <h3 class="clear-glass-title" id="switchModalTitle">
+                        <i class="fa-solid fa-arrows-rotate text-primary me-2"></i>Switch Role
+                    </h3>
+                    <p class="clear-glass-subtitle" id="switchModalSubtitle">
+                        Switch between Administrator and User Attendance mode.
+                    </p>
+                </div>
+
+                <div class="modal-body p-0">
+                    <!-- Switch Info / Current Status -->
+                    <div class="clear-glass-subcard mb-3 p-3" style="background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4); border-radius: 14px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted" style="font-size: 0.85rem; font-weight: 500;">Current Active Mode:</span>
+                            <span class="badge {% if role == 'admin' %}bg-primary{% else %}bg-success{% endif %}" id="modal_current_role_badge" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border-radius: 50px;">
+                                {{ (role or 'user')|upper }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Target Role Selection Tabs -->
+                    <div class="role-selector-group mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: rgba(0,0,0,0.04); padding: 0.35rem; border-radius: 14px;">
+                        <button type="button" class="role-tab-btn {% if role != 'admin' %}active admin-active{% endif %}" id="modal_tab_admin" style="border: none; padding: 0.65rem; border-radius: 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                            <i class="fa-solid fa-shield-halved"></i> To Admin
+                        </button>
+                        <button type="button" class="role-tab-btn {% if role == 'admin' %}active user-active{% endif %}" id="modal_tab_user" style="border: none; padding: 0.65rem; border-radius: 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                            <i class="fa-solid fa-user-check"></i> To User
+                        </button>
+                    </div>
+
+                    <!-- Admin Password Section (When switching to Admin) -->
+                    <div id="modal_admin_password_area" class="mb-3" style="display: {% if role == 'admin' %}none{% else %}block{% endif %};">
+                        <label class="clear-glass-label" style="font-size: 0.75rem; font-weight: 700; color: #1e293b; margin-bottom: 0.4rem; display: block;">ADMINISTRATOR PASSWORD</label>
+                        <div class="clear-glass-input-box" style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.25); border: 1px solid rgba(255, 255, 255, 0.45); border-radius: 14px; padding: 0.65rem 1rem;">
+                            <i class="fa-solid fa-lock me-2 text-muted"></i>
+                            <input type="password" id="modal_admin_password" class="neu-input w-100" placeholder="Enter administrator password" autocomplete="current-password" style="background: transparent; border: none; outline: none;">
+                        </div>
+                    </div>
+
+                    <!-- Modal Dynamic Status Alert -->
+                    <div id="switch_modal_alert" class="clear-glass-alert mb-3" style="display: none;"></div>
+
+                    <!-- Modal Submit Button -->
+                    <div class="pt-2">
+                        <button type="button" id="btn_confirm_switch_role" class="clear-glass-btn-primary w-100 py-3">
+                            <span class="btn-label"><i class="fa-solid fa-check-circle me-1"></i> Switch to <span id="target_role_text">{% if role == 'admin' %}User{% else %}Admin{% endif %}</span></span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Scripts -->
-    <script src="static/scripts.js?v=ambient_v2"></script>
+    <script src="static/scripts.js?v=ambient_v3"></script>
 </body>
 
 </html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | FaceTrack AI Biometric Access</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Neumorphic & Frosted Glass Styles -->
+    <link rel="stylesheet" href="/static/style.css?v=ambient_v2">
+    <link rel="stylesheet" href="/static/glass-theme.css?v=ambient_v2">
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+        .login-page-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            border-radius: var(--radius-card);
+            box-shadow: var(--neu-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            padding: 2.25rem 2rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #10b981);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-brand-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.6rem;
+            box-shadow: 0 10px 22px -4px rgba(37, 99, 235, 0.45);
+            margin-bottom: 1rem;
+        }
+
+        .login-title {
+            font-family: var(--font-heading);
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.4px;
+        }
+
+        .login-subtitle {
+            font-family: var(--font-body);
+            font-size: 0.84rem;
+            color: var(--text-muted);
+        }
+
+        /* Role Selector Tabs */
+        .role-selector-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+            margin-bottom: 1.75rem;
+            padding: 0.35rem;
+            background: var(--neu-surface);
+            border-radius: 18px;
+            box-shadow: var(--neu-inset);
+        }
+
+        .role-tab-btn {
+            border: none;
+            outline: none;
+            padding: 0.85rem 1rem;
+            border-radius: 14px;
+            background: transparent;
+            font-family: var(--font-heading);
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .role-tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .role-tab-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .role-tab-btn.active.admin-active {
+            color: #2563eb;
+        }
+
+        .role-tab-btn.active.user-active {
+            color: #059669;
+        }
+
+        /* Role Description Banner */
+        .role-info-banner {
+            background: rgba(37, 99, 235, 0.05);
+            border: 1px solid rgba(37, 99, 235, 0.18);
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+            font-size: 0.8rem;
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            line-height: 1.45;
+        }
+
+        .role-info-banner.user-banner {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #065f46;
+        }
+
+        /* Password Input Area */
+        .password-group {
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .pw-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 0 0.25rem;
+            transition: color 0.2s ease;
+        }
+
+        .pw-toggle-btn:hover {
+            color: var(--text-main);
+        }
+
+        /* Alert Box */
+        .login-alert {
+            display: none;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+            animation: alertShake 0.35s ease;
+        }
+
+        .login-alert.alert-error {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: #e11d48;
+        }
+
+        @keyframes alertShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .login-footer-note {
+            text-align: center;
+            font-size: 0.76rem;
+            color: var(--text-dim);
+            margin-top: 1.75rem;
+            font-family: var(--font-mono);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Ambient Background Glow -->
+    <div class="bg-grid"></div>
+
+    <div class="login-page-container">
+        <div class="login-card">
+            
+            <!-- Brand Logo & Header -->
+            <div class="login-header">
+                <div class="login-brand-icon">
+                    <i class="fa-solid fa-face-smile"></i>
+                </div>
+                <h1 class="login-title">FaceTrack <span style="color: #2563eb;">AI</span></h1>
+                <p class="login-subtitle">Biometric Facial Verification & Attendance</p>
+            </div>
+
+            <!-- Role Selector -->
+            <div class="role-selector-group">
+                <button type="button" class="role-tab-btn active admin-active" id="tab_admin" data-role="admin">
+                    <i class="fa-solid fa-shield-halved"></i> Admin
+                </button>
+                <button type="button" class="role-tab-btn" id="tab_user" data-role="user">
+                    <i class="fa-solid fa-user-check"></i> User
+                </button>
+            </div>
+
+            <!-- Alert Message Box -->
+            <div id="login_alert" class="login-alert alert-error">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> <span id="alert_text"></span>
+            </div>
+
+            <!-- Admin Form Section -->
+            <div id="admin_section">
+                <div class="role-info-banner">
+                    <i class="fa-solid fa-circle-info mt-1"></i>
+                    <div>
+                        <strong>Administrator Mode:</strong> Full management control including Student Training, Reports, Data Purge, and Manual/Automated Attendance.
+                    </div>
+                </div>
+
+                <div class="password-group">
+                    <label class="input-label mb-2">ADMIN PASSWORD</label>
+                    <div class="neu-input-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="admin_password" placeholder="Enter administrator password" class="neu-input" autocomplete="current-password">
+                        <button type="button" id="toggle_pw" class="pw-toggle-btn" title="Show/Hide Password">
+                            <i class="fa-solid fa-eye" id="pw_eye_icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" id="btn_login_admin" class="neu-btn neu-btn-primary w-100 py-3">
+                    <i class="fa-solid fa-arrow-right-to-bracket btn-icon"></i>
+                    <span class="btn-label">Authenticate as Admin</span>
+                </button>
+            </div>
+
+            <!-- User Form Section -->
+            <div id="user_section" style="display: none;">
+                <div class="role-info-banner user-banner">
+                    <i class="fa-solid fa-circle-check mt-1"></i>
+                    <div>
+                        <strong>User Attendance Mode:</strong> Dedicated single-feature access for taking attendance. Face matches <strong>&gt; 80%</strong> will record attendance automatically.
+                    </div>
+                </div>
+
+                <button type="button" id="btn_login_user" class="neu-btn neu-btn-success w-100 py-3">
+                    <i class="fa-solid fa-id-badge btn-icon"></i>
+                    <span class="btn-label">Enter Attendance Portal</span>
+                </button>
+            </div>
+
+            <div class="login-footer-note">
+                Secured Biometric Optical Terminal v2.4
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Ambient Cursor Glow & Interaction Logic -->
+    <script>
+        $(document).ready(function() {
+            var selectedRole = 'admin';
+
+            // Role Toggle
+            $('#tab_admin').click(function() {
+                selectedRole = 'admin';
+                $(this).addClass('active admin-active');
+                $('#tab_user').removeClass('active user-active');
+                $('#admin_section').slideDown(200);
+                $('#user_section').slideUp(200);
+                $('#login_alert').hide();
+                $('#admin_password').focus();
+            });
+
+            $('#tab_user').click(function() {
+                selectedRole = 'user';
+                $(this).addClass('active user-active');
+                $('#tab_admin').removeClass('active admin-active');
+                $('#user_section').slideDown(200);
+                $('#admin_section').slideUp(200);
+                $('#login_alert').hide();
+            });
+
+            // Password reveal toggle
+            $('#toggle_pw').click(function() {
+                var input = $('#admin_password');
+                var icon = $('#pw_eye_icon');
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            });
+
+            // Submit Admin Login
+            function submitAdminLogin() {
+                var pw = $('#admin_password').val().trim();
+                if (!pw) {
+                    $('#alert_text').text('Please enter the administrator password.');
+                    $('#login_alert').stop(true, true).slideDown(150);
+                    $('#admin_password').focus();
+                    return;
+                }
+
+                var btn = $('#btn_login_admin');
+                btn.addClass('pressed').prop('disabled', true);
+                $('#login_alert').hide();
+
+                $.ajax({
+                    url: '/login',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ role: 'admin', password: pw }),
+                    success: function(res) {
+                        btn.removeClass('pressed').prop('disabled', false);
+                        if (res.status === 'success') {
+                            window.location.href = res.redirect || '/';
+                        } else {
+                            $('#alert_text').text(res.message || 'Incorrect password.');
+                            $('#login_alert').stop(true, true).slideDown(150);
+                            $('#admin_password').select().focus();
+                        }
+                    },
+                    error: function() {
+                        btn.removeClass('pressed').prop('disabled', false);
+                        $('#alert_text').text('Server communication error. Please try again.');
+                        $('#login_alert').stop(true, true).slideDown(150);
+                    }
+                });
+            }
+
+            // Submit User Login
+            function submitUserLogin() {
+                var btn = $('#btn_login_user');
+                btn.addClass('pressed').prop('disabled', true);
+
+                $.ajax({
+                    url: '/login',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ role: 'user' }),
+                    success: function(res) {
+                        if (res.status === 'success') {
+                            window.location.href = res.redirect || '/';
+                        }
+                    },
+                    error: function() {
+                        btn.removeClass('pressed').prop('disabled', false);
+                        $('#alert_text').text('Error entering user portal.');
+                        $('#login_alert').stop(true, true).slideDown(150);
+                    }
+                });
+            }
+
+            $('#btn_login_admin').click(submitAdminLogin);
+            $('#btn_login_user').click(submitUserLogin);
+
+            $('#admin_password').keypress(function(e) {
+                if (e.which === 13) {
+                    submitAdminLogin();
+                }
+            });
+
+            // Ambient Mouse Glow
+            var $ambientGlow = $('<div id="ambient-cursor-glow" class="ambient-cursor-glow"></div>');
+            $('body').append($ambientGlow);
+
+            var targetX = -999, targetY = -999, currentX = -999, currentY = -999;
+            var isGlowActive = false;
+
+            function updateAmbientCursor() {
+                if (isGlowActive) {
+                    currentX += (targetX - currentX) * 0.22;
+                    currentY += (targetY - currentY) * 0.22;
+                    $ambientGlow.css('transform', 'translate3d(' + currentX + 'px, ' + currentY + 'px, 0)');
+                }
+                requestAnimationFrame(updateAmbientCursor);
+            }
+            requestAnimationFrame(updateAmbientCursor);
+
+            $(window).on('mousemove', function(e) {
+                targetX = e.clientX;
+                targetY = e.clientY;
+                if (!isGlowActive) {
+                    currentX = targetX;
+                    currentY = targetY;
+                    $ambientGlow.css('opacity', '1');
+                    isGlowActive = true;
+                }
+            });
+
+            $(window).on('mouseleave', function() {
+                $ambientGlow.css('opacity', '0');
+                isGlowActive = false;
+            });
+
+            // Button Ripple
+            $(document).on('pointerdown', '.neu-btn', function(e) {
+                if (e.which === 3) return;
+                var btn = $(this);
+                var offset = btn.offset();
+                var relX = e.pageX - offset.left;
+                var relY = e.pageY - offset.top;
+
+                var $ripple = $('<span class="btn-ripple"></span>');
+                $ripple.css({ left: relX + 'px', top: relY + 'px' });
+                btn.append($ripple);
+                setTimeout(function() { $ripple.remove(); }, 580);
+            });
+        });
+    </script>
+</body>
+
+</html>
