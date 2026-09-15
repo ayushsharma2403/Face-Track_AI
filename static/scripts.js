@@ -259,12 +259,24 @@ $(document).ready(function() {
         btn.addClass('pressed');
         logTerminal("Initiating burst scan & generating illumination-invariant profiles for: " + student_name + "...", false);
 
+        // Capture current client-side frame if available for high-fidelity registration
+        var clientPhoto = null;
+        if ($browserVideo && $browserVideo.videoWidth > 0) {
+            var tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 640;
+            tempCanvas.height = 480;
+            var tctx = tempCanvas.getContext('2d');
+            tctx.drawImage($browserVideo, 0, 0, 640, 480);
+            clientPhoto = tempCanvas.toDataURL('image/jpeg', 0.85);
+        }
+
         $.ajax({
             url: '/train_image',
             type: 'POST',
             data: {
                 student_name: student_name,
-                roll_no: roll_no
+                roll_no: roll_no,
+                client_frame: clientPhoto || ''
             },
             success: function(response) {
                 btn.removeClass('pressed');
@@ -292,9 +304,22 @@ $(document).ready(function() {
         btn.addClass('pressed');
         logTerminal("Scanning optical feed for facial biometric recognition...", false);
 
+        var clientPhoto = null;
+        if ($browserVideo && $browserVideo.videoWidth > 0) {
+            var tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 640;
+            tempCanvas.height = 480;
+            var tctx = tempCanvas.getContext('2d');
+            tctx.drawImage($browserVideo, 0, 0, 640, 480);
+            clientPhoto = tempCanvas.toDataURL('image/jpeg', 0.85);
+        }
+
         $.ajax({
             url: '/take_attendance',
             type: 'POST',
+            data: {
+                client_frame: clientPhoto || ''
+            },
             success: function(response) {
                 btn.removeClass('pressed');
                 if (response.status === 'success') {

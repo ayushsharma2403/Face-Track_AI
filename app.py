@@ -115,6 +115,27 @@ def sync_attendance_to_supabase(name, roll, timestamp_str):
         except Exception as e:
             print(f"[Supabase] Sync attendance error: {e}")
 
+def ensure_attendance_records(force_sync=False):
+    """Ensures local attendance.csv exists and is synchronized with Supabase cloud data."""
+    needs_sync = force_sync or not os.path.exists(ATTENDANCE_PATH) or os.path.getsize(ATTENDANCE_PATH) < 30
+    if needs_sync and supabase is not None:
+        try:
+            res = supabase.table('attendance').select('name,roll_no,timestamp').order('created_at', desc=False).execute()
+            if res.data:
+                with open(ATTENDANCE_PATH, 'w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['Name', 'Roll', 'Timestamp'])
+                    for item in res.data:
+                        writer.writerow([item.get('name', ''), item.get('roll_no', ''), item.get('timestamp', '')])
+                print(f"[Supabase] Rebuilt local attendance.csv from cloud database ({len(res.data)} rows).")
+        except Exception as err:
+            print(f"[Supabase] Could not fetch attendance records: {err}")
+
+    if not os.path.exists(ATTENDANCE_PATH):
+        with open(ATTENDANCE_PATH, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['Name', 'Roll', 'Timestamp'])
+
 # -------------------------------------------------------------------------
 # Face Preprocessing & Standardization Helpers (Illumination & Outfit Invariant)
 # -------------------------------------------------------------------------
@@ -760,8 +781,40 @@ def train_image():
     captured_crops = []
     primary_thumbnail = None
 
-    for i in range(5):
-        success, frame = camera_stream.get_raw_frame(timeout=0.6)
+    # Check if a client frame was explicitly sent from the browser
+    client_frame_b64 = request.form.get('client_frame', '').strip()
+    if client_frame_b64:
+        try:
+            if ',' in client_frame_b64:
+                client_frame_b64 = client_frame_b64.split(',', 1)[1]
+            img_b = base64.b64decode(client_frame_b64)
+            c_arr = np.frombuffer(img_b, np.uint8)
+            direct_frame = cv2.imdecode(c_arr, cv2.IMREAD_COLOR)
+            if direct_frame is not None:
+                camera_stream.push_external_frame(direct_frame)
+                c_faces = camera_stream.detect_faces(direct_frame)
+                if len(c_faces) > 0:
+                    c_sorted = sorted(c_faces, key=lambda f: f[2] * f[3], reverse=True)
+                    c_crop = extract_face_crop(direct_frame, c_sorted[0])
+                    if c_crop is not None and c_crop.size > 0:
+                        captured_crops.append(c_crop)
+                        primary_thumbnail = frame_to_base64_thumbnail(c_crop)
+                        # Synthesize subtle variations (zoom & micro-shifts) for robust cloud training
+                        h, w = c_crop.shape[:2]
+                        zh, zw = int(h * 0.04), int(w * 0.04)
+                        if zh > 0 and zw > 0:
+                            captured_crops.append(cv2.resize(c_crop[zh:h-zh, zw:w-zw], (w, h)))
+                        M1 = np.float32([[1, 0, 3], [0, 1, 3]])
+                        captured_crops.append(cv2.warpAffine(c_crop, M1, (w, h), borderMode=cv2.BORDER_REPLICATE))
+                        M2 = np.float32([[1, 0, -3], [0, 1, -3]])
+                        captured_crops.append(cv2.warpAffine(c_crop, M2, (w, h), borderMode=cv2.BORDER_REPLICATE))
+        except Exception as ex:
+            print(f"[Train] Error parsing client_frame: {ex}")
+
+    # Also capture from stream buffer if available
+    timeout_val = 0.1 if captured_crops else 0.6
+    for i in range(3):
+        success, frame = camera_stream.get_raw_frame(timeout=timeout_val)
         if success and frame is not None:
             faces = camera_stream.detect_faces(frame)
             if len(faces) > 0:
@@ -772,7 +825,7 @@ def train_image():
                     captured_crops.append(face_crop)
                     if primary_thumbnail is None:
                         primary_thumbnail = frame_to_base64_thumbnail(face_crop)
-        time.sleep(0.08) # Short burst interval
+        time.sleep(0.05) # Short burst interval
 
     if not captured_crops:
         return jsonify({'status': 'error', 'message': 'No face detected in video feed. Please look directly into the camera with good lighting.'})
@@ -825,10 +878,26 @@ def train_image():
 
 @app.route('/take_attendance', methods=['POST'])
 def take_attendance():
-    # Capture frame from live feed
-    success, frame = camera_stream.get_raw_frame()
-    if not success or frame is None:
-        return jsonify({'status': 'error', 'message': 'Camera is not currently capturing frames. Please check connection.'})
+    # Check if a client frame was explicitly sent from the browser
+    frame = None
+    client_frame_b64 = request.form.get('client_frame', '').strip()
+    if client_frame_b64:
+        try:
+            if ',' in client_frame_b64:
+                client_frame_b64 = client_frame_b64.split(',', 1)[1]
+            img_b = base64.b64decode(client_frame_b64)
+            c_arr = np.frombuffer(img_b, np.uint8)
+            frame = cv2.imdecode(c_arr, cv2.IMREAD_COLOR)
+            if frame is not None:
+                camera_stream.push_external_frame(frame)
+        except Exception as ex:
+            print(f"[Attendance] Error parsing client_frame: {ex}")
+
+    # Fallback to internal camera stream buffer
+    if frame is None:
+        success, frame = camera_stream.get_raw_frame(timeout=0.6)
+        if not success or frame is None:
+            return jsonify({'status': 'error', 'message': 'Camera is not currently capturing frames. Please check connection.'})
 
     faces = camera_stream.detect_faces(frame)
     if len(faces) == 0:
@@ -853,8 +922,8 @@ def take_attendance():
 
     student, distance, conf_pct = face_manager.predict(face_crop)
 
-    # LBPH distance threshold <= 80.0 is genuine verified match
-    if student is None or distance > 80.0:
+    # LBPH distance threshold <= 85.0 is genuine verified match
+    if student is None or distance > 85.0:
         return jsonify({
             'status': 'warning',
             'message': f'Face detected, but biometric confidence was too low ({conf_pct}%, distance {int(distance)}). Please look directly at the camera.',
@@ -866,6 +935,9 @@ def take_attendance():
     now = datetime.now()
     today_date = now.strftime('%Y-%m-%d')
     current_time_str = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    # Ensure attendance cache is in sync with cloud database before checking duplicates
+    ensure_attendance_records()
 
     # Check if attendance already marked today for this student
     already_marked = False
@@ -922,14 +994,10 @@ def take_attendance():
 @app.route('/download_attendance', methods=['GET'])
 def download_attendance():
     """Directly download the attendance CSV report."""
-    if session.get('role') != 'admin':
-        return "Access denied: Attendance report download is restricted to Administrator.", 403
+    if 'role' not in session:
+        return redirect(url_for('login'))
 
-    if not os.path.exists(ATTENDANCE_PATH):
-        # Create an empty attendance file with headers
-        with open(ATTENDANCE_PATH, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Name', 'Roll', 'Timestamp'])
+    ensure_attendance_records(force_sync=True)
 
     today_str = datetime.now().strftime('%Y-%m-%d')
     return send_file(
@@ -990,6 +1058,8 @@ def send_email():
         if custom_sender and custom_password and save_creds:
             save_env_file(custom_sender, custom_password)
 
+        ensure_attendance_records()
+
         if not os.path.exists(ATTENDANCE_PATH):
             return jsonify({'status': 'error', 'message': 'No attendance records found yet to send. Please take attendance first.'})
 
@@ -1032,14 +1102,33 @@ def send_email():
         <html>
         <body style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 20px;">
             <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                <h2 style="color: #0f172a; margin-top: 0;">Face-Track AI - Daily Attendance Log</h2>
-                <p style="color: #475569;">Please find the verified biometric attendance log below:</p>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; margin: 0; padding: 24px; }}
+                .container {{ max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }}
+                .header {{ border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 20px; }}
+                .header h2 {{ margin: 0; color: #0f172a; font-size: 20px; }}
+                .header p {{ margin: 4px 0 0; color: #64748b; font-size: 13px; }}
+                table {{ width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px; }}
+                th {{ background: #f1f5f9; color: #334155; text-align: left; padding: 10px; font-weight: 600; border-bottom: 2px solid #e2e8f0; }}
+                td {{ padding: 10px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>Face-Track AI &bull; Attendance Report</h2>
+                    <p>Generated on {datetime.now().strftime("%B %d, %Y at %I:%M %p")}</p>
+                </div>
+                <p>Hello,</p>
+                <p>The daily biometric attendance report has been generated. Total records present: <strong>{len(rows)}</strong>.</p>
+                <table>
                     <thead>
-                        <tr style="background-color: #0f172a; color: #ffffff;">
-                            <th style="padding: 10px; text-align: left;">Name</th>
-                            <th style="padding: 10px; text-align: left;">Roll Number</th>
-                            <th style="padding: 10px; text-align: left;">Timestamp</th>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Roll Number</th>
+                            <th>Timestamp</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1072,9 +1161,20 @@ def send_email():
                 filename=f'attendance_{datetime.now().strftime("%Y%m%d")}.csv'
             )
 
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=12) as smtp:
-            smtp.login(sender_email, sender_password.replace(" ", ""))
-            smtp.send_message(msg)
+        # Attempt port 465 (SSL); fallback to port 587 (STARTTLS) if cloud provider blocks port 465 (Error 101)
+        cleaned_password = sender_password.replace(" ", "")
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=8) as smtp:
+                smtp.login(sender_email, cleaned_password)
+                smtp.send_message(msg)
+        except Exception as port465_err:
+            print(f"[SMTP] Port 465 connection failed or timed out ({port465_err}). Attempting STARTTLS on port 587...")
+            with smtplib.SMTP('smtp.gmail.com', 587, timeout=12) as smtp:
+                smtp.ehlo()
+                smtp.starttls()
+                smtp.ehlo()
+                smtp.login(sender_email, cleaned_password)
+                smtp.send_message(msg)
 
         return jsonify({
             'status': 'success',
@@ -1091,7 +1191,7 @@ def send_email():
     except Exception as e:
         return jsonify({
             'status': 'error',
-            'message': f'Failed to send email: {str(e)}',
+            'message': f'Failed to send email: {str(e)}. You can click "Open Mail App" below to dispatch immediately.',
             'mailto_url': mailto_url if 'mailto_url' in locals() else None
         })
 
