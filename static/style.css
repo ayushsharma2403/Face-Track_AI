@@ -83,6 +83,35 @@ body {
                 radial-gradient(700px 450px at 85% 85%, rgba(139, 92, 246, 0.06), transparent 60%);
 }
 
+/* ==========================================================================
+   Ambient Mouse Pointer & Click Effects
+   ========================================================================== */
+.ambient-cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 380px;
+    height: 380px;
+    margin-left: -190px;
+    margin-top: -190px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.05) 40%, rgba(59, 130, 246, 0.015) 60%, transparent 72%);
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.35s ease, width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), margin 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translate3d(-999px, -999px, 0);
+    will-change: transform;
+}
+
+.ambient-cursor-glow.active-hover {
+    width: 460px;
+    height: 460px;
+    margin-left: -230px;
+    margin-top: -230px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.16) 0%, rgba(168, 85, 247, 0.08) 45%, rgba(59, 130, 246, 0.02) 65%, transparent 75%);
+}
+
 .app-wrapper {
     position: relative;
     z-index: 1;
@@ -318,9 +347,11 @@ body {
                 inset 0 -1.5px 2px rgba(255, 255, 255, 0.25),
                 0 8px 20px -4px rgba(0, 0, 0, 0.08);
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, filter 0.2s ease;
     outline: none;
     overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 /* Glass Specular Top Highlight Glint - Image Inspired */
@@ -342,18 +373,50 @@ body {
     position: relative;
     z-index: 2;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .neu-btn:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2.5px) scale(1.018);
     box-shadow: inset 0 2px 2px #ffffff,
-                0 12px 26px -4px rgba(0, 0, 0, 0.12);
-    filter: brightness(1.03);
+                0 14px 28px -4px rgba(0, 0, 0, 0.12);
+    filter: brightness(1.04);
+}
+
+.neu-btn:hover .btn-icon {
+    transform: scale(1.12);
 }
 
 .neu-btn.pressed, .neu-btn:active {
-    transform: translateY(1px);
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.12);
+    transform: translateY(1.5px) scale(0.965) !important;
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.15) !important;
+    transition: transform 0.08s ease, box-shadow 0.08s ease !important;
+}
+
+/* Button Material Glass Ripple */
+.btn-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.15) 70%, transparent 100%);
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0);
+    animation: btnRippleAnim 0.55s cubic-bezier(0.12, 0.8, 0.3, 1) forwards;
+    z-index: 3;
+}
+
+@keyframes btnRippleAnim {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    100% {
+        width: 260px;
+        height: 260px;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
 
 .btn-icon {
@@ -466,7 +529,8 @@ body {
 /* ==========================================================================
    Biometric Confirmation Card - Frosted Glassmorphic Toast (img2)
    ========================================================================== */
-.confirmation-card-glass {
+.confirmation-card-glass,
+.confirmation-toast-glass {
     background: var(--glass-bg) !important;
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
@@ -474,7 +538,33 @@ body {
     border-radius: 20px !important;
     box-shadow: var(--glass-shadow), var(--glass-glow) !important;
     padding: 1rem 1.25rem !important;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+.confirmation-toast-glass.animating-in {
+    animation: toastSpringPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes toastSpringPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(-16px);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.025) translateY(2px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.confirmation-toast-glass:hover {
+    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2), 0 0 25px rgba(59, 130, 246, 0.25) !important;
+    transform: translateY(-2px);
 }
 
 .confirm-avatar-wrapper {
@@ -486,6 +576,11 @@ body {
     box-shadow: var(--neu-inset);
     border: 2px solid #ffffff;
     flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.confirmation-toast-glass:hover .confirm-avatar-wrapper {
+    transform: scale(1.06) rotate(-2deg);
 }
 
 /* ==========================================================================
@@ -568,14 +663,12 @@ body {
     min-height: 380px;
 }
 
-.video-feed img,
-.video-feed video {
-    width: 100%;
+.video-feed img {
     max-width: 100%;
     max-height: 420px;
     border-radius: 14px;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .video-scanline {
